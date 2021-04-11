@@ -165,6 +165,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
             # Check the following after finding particles of a new micrograph
             if micId != self._lastMicId:
                 batchSize = int(self.batchSize)*self.cumulative.get()*self._counter + int(self.batchSize)*(not self.cumulative.get())
+                self._lastMicId = micId
                 if self._lastMicId is not None and subset.getSize() > batchSize:
                     print("Subset size:", subset.getSize())
                     print("Batch size:", batchSize)
@@ -173,10 +174,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                     if self.cumulative.get():
                         print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
                         self._lastPartId = self.startingNumber.get()
-                        self._lastMicId = micId
                         break
-
-                self._lastMicId = micId
 
         # Write last group of particles if input stream is closed
         if self._streamClosed:
