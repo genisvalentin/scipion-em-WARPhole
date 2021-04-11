@@ -9,8 +9,8 @@ Installing requirements
 ==========================
 
 WARPhole requries the plugins to be installed.
-- pyworkflow
-- relion
+-pyworkflow
+-relion
 
 ==========================
 Installing WARPhole
