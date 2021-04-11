@@ -4,16 +4,14 @@ Scipion WARPhole plugin
 
 This is a `Scipion <http://scipion.i2pc.es/>`_ plugin that allows the import of cryo-em data preprocessed in WARP `(Tegunov and Cramer, 2019) <https://pubmed.ncbi.nlm.nih.gov/31591575/>`_ in streaming mode.
 
-
-
 ==========================
 Installing requirements
 ==========================
 
-WARPhole requries the plugins to be installed.
+WARPhole requries the following plugins to be installed.
 
-- pyworkflow
-- relion
+- `scipion-em-facilities <https://github.com/scipion-em/scipion-em-facilities>`_
+- `scipion-em-relion <https://github.com/scipion-em/scipion-em-relion>`_
 
 ==========================
 Installing WARPhole
@@ -29,4 +27,4 @@ Installing WARPhole
 
 .. code-block::
 
-    scipion3 installp -p /patho/to/scipion-em-WARPhole --devel
+    scipion3 installp -p /path/to/scipion-em-WARPhole --devel
