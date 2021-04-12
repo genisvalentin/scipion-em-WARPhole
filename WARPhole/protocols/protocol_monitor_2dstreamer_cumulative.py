@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 # **************************************************************************
 # *
-# * Authors:     J.M. De la Rosa Trevin (delarosatrevin@scilifelab.se) [1]
+# * Authors:     Genis Valentin Gese (genis.valentin.gese@ki.se)
 # *
-# * [1] SciLifeLab, Stockholm University
+# * Karolinska Institutet
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -20,7 +21,7 @@
 # * 02111-1307  USA
 # *
 # *  All comments concerning this program package may be sent to the
-# *  e-mail address 'scipion@cnb.csic.es'
+# *  e-mail address 'genis.valentin.gese@ki.se'
 # *
 # **************************************************************************
 
