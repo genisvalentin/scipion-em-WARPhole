@@ -62,7 +62,7 @@ class WARPimporter:
         self._importAlignments = importAlignments
         self._importedCoords = set()
         self._initSets()
-        self._findImagesPath('rlnImageName')
+        _, self.modelRow, self.acqRow = self._findImagesPath('rlnImageName')
 
     def _initSets(self):
         '''This function prepares the particle, movie and micrographs sets, and calls readSetOfNewParticles to import everything'''
@@ -152,6 +152,7 @@ class WARPimporter:
         # init dictionary. It will be used in the preprocessing
         self._stackTrans = None
         self._micTrans = None
+        print("acqRow",acqRow)
         return row, None, acqRow
 
     #This function imports the movies and the micrographs
@@ -257,8 +258,9 @@ class WARPimporter:
         print("Getting acquisition info")
 
         try:
-            _, modelRow, acqRow = self._findImagesPath('rlnImageName')
-            print("acqRow",acqRow)
+            #_, modelRow, acqRow = self._findImagesPath('rlnImageName')
+            acqRow = self.acqRow
+            #print("acqRow",acqRow)
             acquisition = micSet.getAcquisition()
             if acqRow.get('rlnVoltage', False):
                 acquisitionDict['voltage'] = acqRow.rlnVoltage
@@ -282,13 +284,6 @@ class WARPimporter:
             print("Error loading acquisition: ", str(ex))
 
         self.acquisitionDict = acquisitionDict
-
-    #Needs fixing as WARP uses different column names
-    def importCoordinates(self, fileName, addCoordinate):
-        from .convert_deprecated import rowToCoordinate
-        for row in md.iterRows(fileName):
-            coord = rowToCoordinate(row)
-            addCoordinate(coord)
 
     #Returns the path to the micrograph metadata. We assume that the metadata star files are located in motion/*.star
     def getMicrographMetadata(self,micName):
