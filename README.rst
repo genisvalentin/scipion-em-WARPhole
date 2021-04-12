@@ -8,7 +8,7 @@ This is a `Scipion <http://scipion.i2pc.es/>`_ plugin that allows the import of 
 Installation requirements
 -------------------------
 
-WARPhole requries the following plugins to be installed.
+WARPhole requires the following plugins to be installed.
 
 - `scipion-em-facilities <https://github.com/scipion-em/scipion-em-facilities>`_
 - `scipion-em-relion <https://github.com/scipion-em/scipion-em-relion>`_
