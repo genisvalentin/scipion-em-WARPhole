@@ -61,10 +61,12 @@ class WARPimporter:
         self._importedMicrographs = set()
         self._importAlignments = importAlignments
         self._importedCoords = set()
+        self.acqRow = None
         self._initSets()
-        _, self.modelRow, self.acqRow = self._findImagesPath('rlnImageName')
 
     def _initSets(self):
+        if self.acqRow is None:
+            _, self.modelRow, self.acqRow = self._findImagesPath('rlnImageName')
         '''This function prepares the particle, movie and micrographs sets, and calls readSetOfNewParticles to import everything'''
         if self.micSet is not None:
             self.micSet.setObjComment('Averaged micrographs imported from Relion star file:\n%s' % self._starFile)
@@ -322,6 +324,7 @@ class WARPimporter:
                 filename: The goodparticles star file
                 rowToParticle: this function will be used to convert the row to Object
             """
+            img = None
             try:
                 imgMd = md.MetaData(filename)
             except:
