@@ -66,9 +66,10 @@ class WARPimporter:
         self._initSets()
 
     def _initSets(self):
+        '''This function prepares the particle, coordinate, movie and micrographs sets'''
         if self.acqRow is None:
             _, self.modelRow, self.acqRow = self._findImagesPath('rlnImageName')
-        '''This function prepares the particle, movie and micrographs sets, and calls readSetOfNewParticles to import everything'''
+
         if self.micSet is not None:
             self.micSet.setObjComment('Averaged micrographs imported from Relion star file:\n%s' % self._starFile)
             self.micSet.enableAppend()
@@ -88,7 +89,7 @@ class WARPimporter:
                 self.partSet.setSamplingRate(self.acquisitionDict['samplingRate'])
 
         if self.movieSet is not None:
-            self.movieSet.setObjComment('Aligned movies imported from Relion star file:\n%s' % self._starFile)
+            self.movieSet.setObjComment('Movies imported from Relion star file:\n%s' % self._starFile)
             self.movieSet.enableAppend()
             if self.movieSet.getSize() > 0:
                 self.movieSet.loadAllProperties()
@@ -109,6 +110,7 @@ class WARPimporter:
                 self.ctfSet.loadAllProperties()
 
     def importParticles(self):
+        '''Main method of this class. Needs to be called to import particles'''
         self._initSets()
         newFiles = self.readSetOfNewParticles(
             self._starFile,
@@ -118,10 +120,10 @@ class WARPimporter:
         if self.coordSet is not None:
             self.coordSet.setBoxSize(self.partSet.getDimensions()[0])
         self._importedParticles = newFiles
-        self.protocol.warning("Added {} new particles".format(str(len(newFiles))))
+        self.protocol.info("Added {} new particles".format(str(len(newFiles))))
 
-    #This function validates the input path for the binaries and gets the acquisition settings
     def _findImagesPath(self, label, warnings=True):
+        '''This function validates the input path for the binaries and gets the acquisition settings from the first row'''
         # read the first table
         table = Table(fileName=self._starFile)
         acqRow = row = table[0]
