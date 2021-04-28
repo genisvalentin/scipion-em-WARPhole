@@ -20,7 +20,7 @@ Installing WARPhole
 
 .. code-block::
 
-    git clone https://github.com/genisvalentin/scipion-em-WARPhole.git scipion-em-WARPohole
+    git clone https://github.com/genisvalentin/scipion-em-WARPhole.git scipion-em-WARPhole
 
 **Install it**
 
