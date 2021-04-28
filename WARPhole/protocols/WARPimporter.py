@@ -233,6 +233,7 @@ class WARPimporter:
                 self._importedMicrographs.add(micKey)
             else:
                 mic = self._micDict.get(os.path.basename(movieName))
+                movieName = mic.getMicName()
 
             # Update the row to set a MDL_MICROGRAPH_ID
             imgRow['rlnMicrographId'] = int(mic.getObjId())
