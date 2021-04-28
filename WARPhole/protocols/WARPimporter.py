@@ -249,7 +249,7 @@ class WARPimporter:
             if img.hasCoordinate():
                 coord = img.getCoordinate()
                 coord.setMicId(micId)
-                coord.setMicName(os.path.basename(micName))
+                coord.setMicName(micName)
                 if partName not in self._importedCoords and self.preprocess_success:
                     self._coordDict[partName] = coord
                     self._importedCoords.add(partName)
