@@ -173,7 +173,6 @@ class WARPimporter:
 
         #Import the associated movie (*.mrcs)
         if self.movieSet is not None:
-
             # Check which is the key to identify micrographs (id or name)
             if movieId is not None:
                 movieKey = movieId
@@ -187,7 +186,7 @@ class WARPimporter:
                 movie = Movie()
                 movie.setObjId(movieId)
                 movie.setFileName(movieName)
-                movie.setMicName(os.path.basename(movieName))
+                movie.setMicName(movieName)
                 if self._importAlignments:
                     alignment = self.getMicrographAlignment(movie)
                     if alignment:
@@ -224,7 +223,7 @@ class WARPimporter:
                 if micName is None:
                     micName = self.protocol._getExtraPath('fake_micrograph%6d' % micId)
                 mic.setFileName(micName)
-                mic.setMicName(os.path.basename(movieName))
+                mic.setMicName(movieName)
                 ctf = rowToCtfModel(imgRow)
                 ctf.setMicrograph(mic)
                 self.ctfSet.append(ctf)
@@ -237,7 +236,7 @@ class WARPimporter:
 
             # Update the row to set a MDL_MICROGRAPH_ID
             imgRow['rlnMicrographId'] = int(mic.getObjId())
-            imgRow['rlnMicrographName'] = os.path.basename(movieName)
+            imgRow['rlnMicrographName'] = movieName
             img.setCTF(rowToCtfModel(imgRow))
             self.preprocess_success = True
 
