@@ -34,17 +34,18 @@ from pyworkflow.project import Manager
 from emfacilities.protocols.protocol_monitor import ProtMonitor
 
 '''
-This protocol is a slightly modified version of the emfaicilites 2d streamer protocol.
+This protocol is a modified version of the emfaicilites 2D streamer protocol
+to run 3D classifications.
 There is a new option to output particle batches cumulatively, that is,
 every new batch also contains the previous batches.
 '''
-class ProtMonitor2dStreamerCumulative(ProtMonitor):
+class ProtMonitor3dStreamerCumulative(ProtMonitor):
     """ This protocol will monitor an input set of particles
     (usually in streaming) and will run/schedule many copies
-     of a given 2D classification protocol but using subsets
-     of the input particles as the 2D classification input.
+     of a given 3D classification protocol but using subsets
+     of the input particles as the 3D classification input.
     """
-    _label = '2d streamer'
+    _label = '3d streamer'
 
     def __init__(self, **kwargs):
         ProtMonitor.__init__(self, **kwargs)
@@ -53,8 +54,8 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
     def _defineParams(self, form):
         form.addSection(label='Input')
 
-        form.addParam('input2dProtocol', params.PointerParam,
-                      label="Input 2D protocol", important=True,
+        form.addParam('input3dProtocol', params.PointerParam,
+                      label="Input 3D protocol", important=True,
                       pointerClass='ProtClassify3D',
                       help="This protocol will serve as the template run"
                            "that will be repeated with subsets of the "
@@ -65,13 +66,13 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                       important=True,
                       label="Input particles",
                       help='Input particles that will be used to execute'
-                           'many 2D classification runs based on the 2D '
+                           'many 3D classification runs based on the 3D '
                            'protocol template selected. ')
 
         form.addParam('batchSize', params.IntParam,
                       label="Batch size",
                       help="How many particles (approximately) you want to "
-                           "group to make the new batch and launch a new 2d"
+                           "group to make the new batch and launch a new 3d"
                            "classification job. ")
 
         form.addParam('startingNumber', params.IntParam, default=0,
@@ -79,7 +80,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                       help="Specify a value greater than 0 if you want to skip "
                            "this amount of particles from the classification "
                            "batches (e.g, if you have classified them for the "
-                           "initial 2D classification template. ")
+                           "initial 3D classification template. ")
 
         form.addParam('cumulative', params.BooleanParam,
                               default=False,
@@ -92,7 +93,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         group.addParam('samplingInterval', params.IntParam, default=10,
                        label="Update interval (min)",
                        help="After how many minutes the protocol should look "
-                            "for new input data and schedule more 2D classification"
+                            "for new input data and schedule more 3D classification"
                             "jobs if necessary. ")
 
     # --------------------------- INSERT steps functions ---------------------
@@ -108,8 +109,8 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         self._lastPartId = self.startingNumber.get()
         self._subset = self._createSubset()
         self._runPrerequisites = []
-        if self.input2dProtocol.get().isActive():
-            self._runPrerequisites.append(self.input2dProtocol.get().getObjId())
+        if self.input3dProtocol.get().isActive():
+            self._runPrerequisites.append(self.input3dProtocol.get().getObjId())
         self._streamClosed = False
         # list of runs that has been (or will) be scheduled/run
 
@@ -142,8 +143,8 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
 
         manager = Manager()
         project = manager.loadProject(self.getProject().getName())
-        input2D = self.input2dProtocol.get()
-        copyProt = project.copyProtocol(project.getProtocol(input2D.getObjId()))
+        input3D = self.input3dProtocol.get()
+        copyProt = project.copyProtocol(project.getProtocol(input3D.getObjId()))
         copyProt.inputParticles.set(project.getProtocol(self.getObjId()))
         copyProt.inputParticles.setExtended(newSubsetName)
         project.scheduleProtocol(copyProt, self._runPrerequisites)
@@ -152,7 +153,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
 
     def _checkNewInput(self):
         """ Check if there are new particles and generate a new set
-        and its corresponding 2D classification. """
+        and its corresponding 3D classification. """
         self.info("Checking new input...")
         subset = self._subset
 
