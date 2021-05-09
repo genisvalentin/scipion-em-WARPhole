@@ -33,3 +33,4 @@ List of protocols
 
 - Import WARP particles (Streaming)
 - Cumulative 2D classification streamer
+- Cumulative 3D classification streamer
