@@ -183,7 +183,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                         break
 
         if self._lastBatchPartId < 0:
-            self._lastBatchPartId = partId - self.batchSize
+            self._lastBatchPartId = partId - int(self.batchSize)
 
         # Write last group of particles if input stream is closed
         if self._streamClosed:
