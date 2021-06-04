@@ -173,7 +173,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                 #if self._lastMicId is not None and subset.getSize() > batchSize:
                 if self._lastMicId is not None and newParticles > int(self.batchSize):
                     print("Subset size:", subset.getSize())
-                    print("Batch size:", batchSize)
+                    #print("Batch size:", batchSize)
                     self._writeSubset(subset)
                     self._lastBatchPartId = partId
                     subset = self._createSubset()
