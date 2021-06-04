@@ -34,10 +34,11 @@ from pyworkflow.project import Manager
 from emfacilities.protocols.protocol_monitor import ProtMonitor
 
 '''
-This protocol is a slightly modified version of the emfaicilites 2d streamer protocol.
+This protocol is a modified version of the emfaicilites 2d streamer protocol.
 There is a new option to output particle batches cumulatively, that is,
-every new batch also contains the previous batches.
+every new batch also contains the particles from previous batches.
 '''
+
 class ProtMonitor2dStreamerCumulative(ProtMonitor):
     """ This protocol will monitor an input set of particles
     (usually in streaming) and will run/schedule many copies
@@ -106,6 +107,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         self._counter = 0
         self._lastMicId = None
         self._lastPartId = self.startingNumber.get()
+        self._lastBatchPartId = self.startingNumber.get()
         self._subset = self._createSubset()
         self._runPrerequisites = []
         if self.input2dProtocol.get().isActive():
@@ -165,12 +167,15 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
             self._lastPartId = partId
             # Check the following after finding particles of a new micrograph
             if micId != self._lastMicId:
-                batchSize = int(self.batchSize)*self.cumulative.get()*self._counter + int(self.batchSize)*(not self.cumulative.get())
+                #batchSize = int(self.batchSize)*self.cumulative.get()*self._counter + int(self.batchSize)*(not self.cumulative.get())
+                newParticles = partId - self._lastBatchPartID
                 self._lastMicId = micId
-                if self._lastMicId is not None and subset.getSize() > batchSize:
+                #if self._lastMicId is not None and subset.getSize() > batchSize:
+                if self._lastMicId is not None and newParticles > int(self.batchSize):
                     print("Subset size:", subset.getSize())
                     print("Batch size:", batchSize)
                     self._writeSubset(subset)
+                    self._lastBatchPartID = partId
                     subset = self._createSubset()
                     if self.cumulative.get():
                         print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
