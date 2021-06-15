@@ -75,9 +75,9 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                            "group to make the new batch and launch a new 2d"
                            "classification job. ")
 
-        form.addParam('startingNumber', params.IntParam, default=0,
+        form.addParam('startingNumber', params.IntParam, default=1,
                       label="Starting number",
-                      help="Specify a value greater than 0 if you want to skip "
+                      help="Specify a value greater than 1 if you want to skip "
                            "this amount of particles from the classification "
                            "batches (e.g, if you have classified them for the "
                            "initial 2D classification template. ")
