@@ -158,7 +158,8 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         subset = self._subset
 
         if self.previousSubsetSize < 1 and self.cumulative.get():
-            self.previousSubsetSize = self._countParticles() - int(self.batchSize) -1
+            self.previousSubsetSize = self._countParticles() - int(self.batchSize) - 1
+            self.info("Setting self.previousSubsetSize to {0},{1}".format(str(self._countParticles()),str(self.batchSize)))
 
         for particle in self._iterParticles():
             micId = particle.getMicId()
