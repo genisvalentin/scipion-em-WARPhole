@@ -107,7 +107,6 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         self._counter = 0
         self._lastMicId = None
         self._lastPartId = self.startingNumber.get()
-        self._lastBatchPartId = -1
         self._subset = self._createSubset()
         self._runPrerequisites = []
         if self.input2dProtocol.get().isActive():
@@ -128,7 +127,6 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         self._counter += 1
         subset = self._createSetOfParticles(suffix="_%03d" % self._counter)
         subset.copyInfo(self.inputParticles.get())
-
         return subset
 
     def _writeSubset(self, subset):
@@ -166,24 +164,24 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
             #          % (micId, partId, subset.getSize()))
             self._lastPartId = partId
             # Check the following after finding particles of a new micrograph
-            if micId != self._lastMicId and self._lastBatchPartId > 0:
+            if micId != self._lastMicId:
                 #batchSize = int(self.batchSize)*self.cumulative.get()*self._counter + int(self.batchSize)*(not self.cumulative.get())
-                newParticles = partId - self._lastBatchPartId
+                #newParticles = particleCount - self._lastPartId
                 self._lastMicId = micId
                 #if self._lastMicId is not None and subset.getSize() > batchSize:
-                if self._lastMicId is not None and newParticles > int(self.batchSize):
-                    print("Subset size:", subset.getSize())
-                    #print("Batch size:", batchSize)
-                    self._writeSubset(subset)
-                    self._lastBatchPartId = partId
-                    subset = self._createSubset()
-                    if self.cumulative.get():
+                if self.cumulative.get():
+                    if int(subset.getSize()) > previousSubsetSize + int(self.batchSize):
+                        self._writeSubset(subset)
                         print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
                         self._lastPartId = self.startingNumber.get()
+                        subset = self._createSubset()
                         break
 
-        if self._lastBatchPartId < 0:
-            self._lastBatchPartId = partId - int(self.batchSize)
+                if not self.cumulative.get():
+                    if int(subset.getSize()) > int(self.batchSize):
+                        self._writeSubset(subset)
+                        subset = self._createSubset()
+                        break
 
         # Write last group of particles if input stream is closed
         if self._streamClosed:
