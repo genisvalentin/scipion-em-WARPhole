@@ -175,7 +175,9 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                 self._lastMicId = micId
                 #if self._lastMicId is not None and subset.getSize() > batchSize:
                 if self.cumulative.get():
+                    print("Checkpoint 1")
                     if int(subset.getSize()) > self.previousSubsetSize + int(self.batchSize):
+                        print("Checkpoint 2")
                         self.previousSubsetSize = int(subset.getSize())
                         self._writeSubset(subset)
                         print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
