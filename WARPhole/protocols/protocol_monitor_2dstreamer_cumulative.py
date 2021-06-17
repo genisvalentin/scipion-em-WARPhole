@@ -106,6 +106,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         # list of particles that will be inserted in the new set
         self._counter = 0
         self._lastMicId = None
+        self.previousSubsetSize = 0
         self._lastPartId = self.startingNumber.get()
         self._subset = self._createSubset()
         self._runPrerequisites = []
@@ -170,7 +171,8 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                 self._lastMicId = micId
                 #if self._lastMicId is not None and subset.getSize() > batchSize:
                 if self.cumulative.get():
-                    if int(subset.getSize()) > previousSubsetSize + int(self.batchSize):
+                    if int(subset.getSize()) > self.previousSubsetSize + int(self.batchSize):
+                        self.previousSubsetSize = int(subset.getSize())
                         self._writeSubset(subset)
                         print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
                         self._lastPartId = self.startingNumber.get()
@@ -179,6 +181,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
 
                 if not self.cumulative.get():
                     if int(subset.getSize()) > int(self.batchSize):
+                        self.previousSubsetSize = int(subset.getSize())
                         self._writeSubset(subset)
                         subset = self._createSubset()
                         break
