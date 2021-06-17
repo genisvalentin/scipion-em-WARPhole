@@ -157,6 +157,9 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         self.info("Checking new input...")
         subset = self._subset
 
+        if self.previousSubsetSize < 1 and self.cumulative.get():
+            self.previousSubsetSize = self._countParticles() - int(self.batchSize) -1
+
         for particle in self._iterParticles():
             micId = particle.getMicId()
             partId = particle.getObjId()
@@ -191,6 +194,12 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
             self._writeSubset(subset)
 
         self._subset = subset
+
+    def _countParticles(self):
+        inputParts = self.inputParticles.get()
+        inputParts.load()
+        inputParts.loadAllProperties()
+        return(int(inputParts.getSize()))
 
     def _iterParticles(self):
         inputParts = self.inputParticles.get()
