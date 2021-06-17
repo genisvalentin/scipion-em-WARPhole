@@ -165,31 +165,27 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
             micId = particle.getMicId()
             partId = particle.getObjId()
             subset.append(particle)
-            self.info("micId: %03d, particle: %05s, size: %s"
-                      % (micId, partId, subset.getSize()))
+            self._lastPartId = partId
+            #self.info("micId: %03d, particle: %05s, size: %s"
+            #          % (micId, partId, subset.getSize()))
             # Check the following after finding particles of a new micrograph
             if micId != self._lastMicId:
                 #batchSize = int(self.batchSize)*self.cumulative.get()*self._counter + int(self.batchSize)*(not self.cumulative.get())
                 #newParticles = particleCount - self._lastPartId
-                print("Checkpoint 0")
                 #if self._lastMicId is not None and subset.getSize() > batchSize:
+                self._lastMicId = micId
                 if self.cumulative.get():
-                    print("Checkpoint 1")
                     if int(subset.getSize()) > self.previousSubsetSize + int(self.batchSize):
-                        print("Checkpoint 2")
                         self.previousSubsetSize = int(subset.getSize())
                         self._writeSubset(subset)
                         print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
                         self._lastPartId = self.startingNumber.get()
-                        self._lastMicId = micId
                         subset = self._createSubset()
                         break
 
                 if not self.cumulative.get():
                     if int(subset.getSize()) > int(self.batchSize):
                         self.previousSubsetSize = int(subset.getSize())
-                        self._lastMicId = micId
-                        self._lastPartId = partId
                         self._writeSubset(subset)
                         subset = self._createSubset()
                         break
