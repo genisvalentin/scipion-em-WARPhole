@@ -202,7 +202,9 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         inputParts = self.inputParticles.get()
         inputParts.load()
         inputParts.loadAllProperties()
-        return(int(inputParts.getSize()))
+        count = int(inputParts.getSize())
+        inputParts.close()
+        return(count)
 
     def _iterParticles(self):
         inputParts = self.inputParticles.get()
