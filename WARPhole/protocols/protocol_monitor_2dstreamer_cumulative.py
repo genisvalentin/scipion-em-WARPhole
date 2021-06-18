@@ -159,6 +159,8 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
 
         if self.previousSubsetSize < 1 and self.cumulative.get():
             self.previousSubsetSize = self._countParticles() - int(self.batchSize) - 2
+            if self.previousSubsetSize < 0:
+                self.previousSubsetSize = 0:
             self.info("Setting self.previousSubsetSize to {0}".format(str(self.previousSubsetSize)))
 
         for particle in self._iterParticles():
