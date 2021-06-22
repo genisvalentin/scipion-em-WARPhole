@@ -34,10 +34,11 @@ from pyworkflow.project import Manager
 from emfacilities.protocols.protocol_monitor import ProtMonitor
 
 '''
-This protocol is a slightly modified version of the emfaicilites 2d streamer protocol.
+This protocol is a modified version of the emfaicilites 2d streamer protocol.
 There is a new option to output particle batches cumulatively, that is,
-every new batch also contains the previous batches.
+every new batch also contains the particles from previous batches.
 '''
+
 class ProtMonitor2dStreamerCumulative(ProtMonitor):
     """ This protocol will monitor an input set of particles
     (usually in streaming) and will run/schedule many copies
@@ -74,9 +75,9 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                            "group to make the new batch and launch a new 2d"
                            "classification job. ")
 
-        form.addParam('startingNumber', params.IntParam, default=0,
+        form.addParam('startingNumber', params.IntParam, default=1,
                       label="Starting number",
-                      help="Specify a value greater than 0 if you want to skip "
+                      help="Specify a value greater than 1 if you want to skip "
                            "this amount of particles from the classification "
                            "batches (e.g, if you have classified them for the "
                            "initial 2D classification template. ")
@@ -105,6 +106,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         # list of particles that will be inserted in the new set
         self._counter = 0
         self._lastMicId = None
+        self.previousSubsetSize = 0
         self._lastPartId = self.startingNumber.get()
         self._subset = self._createSubset()
         self._runPrerequisites = []
@@ -126,7 +128,6 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         self._counter += 1
         subset = self._createSetOfParticles(suffix="_%03d" % self._counter)
         subset.copyInfo(self.inputParticles.get())
-
         return subset
 
     def _writeSubset(self, subset):
@@ -156,25 +157,36 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         self.info("Checking new input...")
         subset = self._subset
 
+        if self.previousSubsetSize < 1 and self.cumulative.get():
+            self.previousSubsetSize = self._countParticles() - int(self.batchSize) - 2
+            if self.previousSubsetSize < 0:
+                self.previousSubsetSize = 0
+            self.info("Setting self.previousSubsetSize to {0}".format(str(self.previousSubsetSize)))
+
         for particle in self._iterParticles():
             micId = particle.getMicId()
             partId = particle.getObjId()
             subset.append(particle)
+            self._lastPartId = partId
             #self.info("micId: %03d, particle: %05s, size: %s"
             #          % (micId, partId, subset.getSize()))
-            self._lastPartId = partId
             # Check the following after finding particles of a new micrograph
             if micId != self._lastMicId:
-                batchSize = int(self.batchSize)*self.cumulative.get()*self._counter + int(self.batchSize)*(not self.cumulative.get())
                 self._lastMicId = micId
-                if self._lastMicId is not None and subset.getSize() > batchSize:
-                    print("Subset size:", subset.getSize())
-                    print("Batch size:", batchSize)
-                    self._writeSubset(subset)
-                    subset = self._createSubset()
-                    if self.cumulative.get():
+                if self.cumulative.get():
+                    if int(subset.getSize()) > self.previousSubsetSize + int(self.batchSize):
+                        self.previousSubsetSize = int(subset.getSize())
+                        self._writeSubset(subset)
                         print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
                         self._lastPartId = self.startingNumber.get()
+                        subset = self._createSubset()
+                        break
+
+                if not self.cumulative.get():
+                    if int(subset.getSize()) > int(self.batchSize):
+                        self.previousSubsetSize = int(subset.getSize())
+                        self._writeSubset(subset)
+                        subset = self._createSubset()
                         break
 
         # Write last group of particles if input stream is closed
@@ -182,6 +194,13 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
             self._writeSubset(subset)
 
         self._subset = subset
+
+    def _countParticles(self):
+        inputParts = self.inputParticles.get()
+        inputParts.load()
+        inputParts.loadAllProperties()
+        count = int(inputParts.getSize())
+        return(count)
 
     def _iterParticles(self):
         inputParts = self.inputParticles.get()

@@ -56,7 +56,8 @@ class ProtMonitor3dStreamerCumulative(ProtMonitor):
 
         form.addParam('input3dProtocol', params.PointerParam,
                       label="Input 3D protocol", important=True,
-                      pointerClass='ProtClassify3D',
+                      #pointerClass='ProtClassify3D',
+                      pointerClass='EMProtocol',
                       help="This protocol will serve as the template run"
                            "that will be repeated with subsets of the "
                            "input particles. ")
