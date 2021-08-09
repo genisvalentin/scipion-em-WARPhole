@@ -204,7 +204,7 @@ class WARPimporter:
                     self._importedMovies.add(movieKey)
 
 
-        if self.micSet is not None and imgRow.get('rlnMicrographName', None) is not None:
+        if self.micSet is not None:
             imgRow['rlnMicrographName'] = self.fixMicName(imgRow['rlnMicrographName'])
             micName = imgRow.get('rlnMicrographName', None)
             micId = imgRow.get('rlnMicrographId', None)
