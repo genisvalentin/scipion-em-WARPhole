@@ -42,6 +42,7 @@ go back to 2
 import os
 import time
 from datetime import datetime
+import shutil
 
 import pyworkflow.protocol.constants as cons
 import pyworkflow.utils as pwutils
