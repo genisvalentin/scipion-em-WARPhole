@@ -85,7 +85,7 @@ class MoveToScratch(EMProtocol):
 		                      default=False,
 		                      help="Whether to revert the particle set from the scratch drive to the original directory")
 
-		form.addParam('scratchPath', condition='(revert == False)', FolderParam, label="Scratch directory", important=True)
+        form.addParam('scratchPath', condition='(revert == False)', FolderParam, label="Scratch directory", important=True)
 
         form.addParam('outputSize', IntParam, default=10000, condition='(revert == False)',
                       label='Minimum output size',
