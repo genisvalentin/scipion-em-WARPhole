@@ -144,7 +144,7 @@ class MoveToScratch(EMProtocol):
 
 		self._moveImages(self.newImages)
 
-        self.splitedImages = self.splitedImages + self.newImages
+		self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
         if len(self.newImages) > 0:
             for item in self.imsSet.iterItems(orderBy='creation',
