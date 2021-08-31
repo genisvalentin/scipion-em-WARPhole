@@ -80,7 +80,7 @@ class MoveToScratch(EMProtocol):
                       label='Input images', important=True)
 
         form.addParam('revert',
-		                      params.BooleanParam,
+		                      BooleanParam,
 		                      label='Revert',
 		                      default=False,
 		                      help="Whether to revert the particle set from the scratch drive to the original directory")
