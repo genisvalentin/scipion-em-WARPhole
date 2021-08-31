@@ -308,7 +308,7 @@ class MoveToScratch(EMProtocol):
             path,name = os.path.dirname(filename),os.path.basename(filename)
             newFilename = os.path.join(scratchPath,filename)
             pwutils.path.makeFilePath(newFilename)
-            symlink = self.protocol._getExtraPath(filename)
+            symlink = self._getExtraPath(filename)
             pwutils.path.makeFilePath(symlink)
             if not os.path.exists(newFilename):
             	print("Moving {} to {}".format(filename,newFilename))
