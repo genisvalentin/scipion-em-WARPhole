@@ -292,19 +292,19 @@ class MoveToScratch(EMProtocol):
     def _validate(self):
         pass
 
-	def _moveImages(imgSet):
-		imgSetSize = self._getImgSetSize(imtSet)
-		freeScratchSpace = self._getFreeScratchSpace(imgSet)
-		print("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
-		while imgSetSize > freeScratchSpace:
-			time.sleep(60)
-			freeScratchSpace = self._getFreeScratchSpace()
-			print("Not enough scratch space available. Sleeping for 60 seconds")
-		for img in imgSet:
-			filename = img.getFileName()
-			path,name = os.path.dirname(filename),os.path.basename(filename)
-			newFilename = os.path.join(scratchPath,filename)
-			pyworkflow.utils.path.makeFilePath(newFilename)
+    def _moveImages(imgSet):
+        imgSetSize = self._getImgSetSize(imtSet)
+        freeScratchSpace = self._getFreeScratchSpace(imgSet)
+        print("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
+        while imgSetSize > freeScratchSpace:
+            time.sleep(60)
+            freeScratchSpace = self._getFreeScratchSpace()
+            print("Not enough scratch space available. Sleeping for 60 seconds")
+        for img in imgSet:
+            filename = img.getFileName()
+            path,name = os.path.dirname(filename),os.path.basename(filename)
+            newFilename = os.path.join(scratchPath,filename)
+            pyworkflow.utils.path.makeFilePath(newFilename)
 			symlink = self.protocol._getExtraPath(filename)
 			pyworkflow.utils.path.makeFilePath(symlink)
 			if not os.path.exists(newFilename):
