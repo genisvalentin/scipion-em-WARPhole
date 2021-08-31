@@ -109,6 +109,11 @@ class MoveToScratch(EMProtocol):
 
     # --------------------------- INSERT steps functions ----------------------
     def _insertAllSteps(self):
+		print("Input images id {}".format(str(self.inputImages.getNameId())))
+		if self.revert:
+			self.splitImages = False
+			self.allImages = True
+
         # initializing variables
         self.finished = False
         self.images = []
@@ -152,7 +157,10 @@ class MoveToScratch(EMProtocol):
                 where='creation>"' + str(self.check) + '"')]
         else:  # first time
             self.newImages = [m.clone() for m in self.imsSet]
-        self._moveImages(self.newImages)
+		if self.revert:
+			self._revertImages(self.newImages)
+        else:
+			self._moveImages(self.newImages)
         self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
         if len(self.newImages) > 0:
@@ -326,6 +334,11 @@ class MoveToScratch(EMProtocol):
             	print("Creating symling from {} to {}".format(symlink,newFilename))
             	pwutils.path.createLink(newFilename, symlink)
             img.setFileName(symlink)
+
+	def _revertImages(self,imgSet):
+		for img in imgSet:
+			filename =
+			img.setFileName(filename)
 
     def _getImgSetSize(self,imgSet):
         totalSize = 0
