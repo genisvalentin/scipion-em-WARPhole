@@ -44,6 +44,7 @@ import time
 from datetime import datetime
 
 import pyworkflow.protocol.constants as cons
+import pyworkflow.utils as pwutils
 from pyworkflow import VERSION_2_0
 from pwem.protocols import EMProtocol
 from pyworkflow.object import Set
@@ -305,21 +306,21 @@ class MoveToScratch(EMProtocol):
             filename = img.getFileName()
             path,name = os.path.dirname(filename),os.path.basename(filename)
             newFilename = os.path.join(scratchPath,filename)
-            pyworkflow.utils.path.makeFilePath(newFilename)
+            pwutils.path.makeFilePath(newFilename)
             symlink = self.protocol._getExtraPath(filename)
-            pyworkflow.utils.path.makeFilePath(symlink)
+            pwutils.path.makeFilePath(symlink)
             if not os.path.exists(newFilename):
             	print("Moving {} to {}".format(filename,newFilename))
-            	pyworkflow.utils.path.copyFile(filename, newFilename)
+            	pwutils.path.copyFile(filename, newFilename)
             if not os.path.exists(symlink):
             	print("Creating symling from {} to {}".format(symlink,newFilename))
-            	pyworkflow.utils.path.createLink(symlink, newFilename)
+            	pwutils.path.createLink(symlink, newFilename)
             img.setFileName(symlink)
 
     def _getImgSetSize(self,imgSet):
         totalSize = 0
         for img in imgSet:
-            totalSize += pyworkflow.utils.path.getFileSize(img.getFileName())
+            totalSize += pwutils.path.getFileSize(img.getFileName())
         return(totalSize)
 
     def _getFreeScratchSpace(self,path):
