@@ -335,10 +335,10 @@ class MoveToScratch(EMProtocol):
             	pwutils.path.createLink(newFilename, symlink)
             img.setFileName(symlink)
 
-	def _revertImages(self,imgSet):
-		for img in imgSet:
-			filename =
-			img.setFileName(filename)
+    def _revertImages(self,imgSet):
+        for img in imgSet:
+            filename = "pass"
+            img.setFileName(filename)
 
     def _getImgSetSize(self,imgSet):
         totalSize = 0
