@@ -49,7 +49,7 @@ import pyworkflow.utils as pwutils
 from pyworkflow import VERSION_2_0
 from pwem.protocols import EMProtocol
 from pyworkflow.object import Set
-from pyworkflow.protocol.params import BooleanParam, IntParam, PointerParam, GT
+from pyworkflow.protocol.params import BooleanParam, IntParam, PointerParam, GT, FolderParam
 
 class MoveToScratch(EMProtocol):
     """
@@ -78,25 +78,41 @@ class MoveToScratch(EMProtocol):
         form.addParam('inputImages', PointerParam,
                       pointerClass='SetOfImages',
                       label='Input images', important=True)
-        form.addParam('outputSize', IntParam, default=10000,
+
+        form.addParam('revert',
+		                      params.BooleanParam,
+		                      label='Revert',
+		                      default=False,
+		                      help="Whether to revert the particle set from the scratch drive to the original directory")
+
+		form.addParam('scratchPath', condition='(revert == False)', FolderParam, label="Scratch directory", important=True)
+
+        form.addParam('outputSize', IntParam, default=10000, condition='(revert == False)',
                       label='Minimum output size',
                       help='How many particles need to be on input to '
                            'create output set.')
-        form.addParam('allImages', BooleanParam, default=True,
+        form.addParam('allImages', condition='(revert == False)', BooleanParam, default=True,
                       label='Send all items to output?',
                       help='If NO is selected, only a closed subset of '
                            '"Output size" items will be send to output.\n'
                            'If YES is selected it will still running in streaming.')
-        form.addParam('splitImages', BooleanParam, default=False,
+        form.addParam('splitImages', condition='(revert == False)', BooleanParam, default=False,
                       label='Split items to multiple sets?',
                       condition='allImages',
                       help='If YES is selected, multiple closed outputs of '
                            '"Output size" are returned.\n'
                            'If NO is selected, only one open and growing output '
                            'is returned')
-        form.addParam('delay', IntParam, default=10, label="Delay (sec)",
+        form.addParam('delay', condition='(revert == False)', IntParam, default=10, label="Delay (sec)",
                       validators=[GT(3, "must be larger than 3sec.")],
                       help="Delay in seconds before checking new output")
+
+        form.addParam('movieTimeout', params.FloatParam,
+                      label='Wait for movie alignment files after import? (sec)',
+                      condition='(doImportAlignedMovies == True)',
+                      default=72000,
+                      help="After the particle import is finished, what these many seconds for the movie motion correction star files to be available. Set to zero if the files are already available.")
+
 
     # --------------------------- INSERT steps functions ----------------------
     def _insertAllSteps(self):
@@ -295,7 +311,7 @@ class MoveToScratch(EMProtocol):
         pass
 
     def _moveImages(self,imgSet):
-        scratchPath = "/media/scratch"
+        scratchPath = self.scratchPath
         imgSetSize = self._getImgSetSize(imgSet)
         freeScratchSpace = self._getFreeScratchSpace(scratchPath)
         print("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
