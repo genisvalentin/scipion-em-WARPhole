@@ -331,7 +331,7 @@ class MoveToScratch(EMProtocol):
             	print("Moving {} to {}".format(filename,newFilename))
             	pwutils.path.copyFile(filename, newFilename)
             if not os.path.exists(symlink):
-            	print("Creating symling from {} to {}".format(symlink,newFilename))
+            	print("Creating symlink from {} to {}".format(symlink,newFilename))
             	pwutils.path.createLink(newFilename, symlink)
             img.setFileName(symlink)
 
