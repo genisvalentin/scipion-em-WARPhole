@@ -85,13 +85,13 @@ class MoveToScratch(EMProtocol):
 		                      default=False,
 		                      help="Whether to revert the particle set from the scratch drive to the original directory")
 
-        form.addParam('scratchPath', condition='(revert == False)', FolderParam, label="Scratch directory", important=True)
+        form.addParam('scratchPath', FolderParam, label="Scratch directory", important=True, condition='(revert == False)')
 
         form.addParam('outputSize', IntParam, default=10000, condition='(revert == False)',
                       label='Minimum output size',
                       help='How many particles need to be on input to '
                            'create output set.')
-        form.addParam('allImages', condition='(revert == False)', BooleanParam, default=True,
+        form.addParam('allImages', BooleanParam, default=True, condition='(revert == False)',
                       label='Send all items to output?',
                       help='If NO is selected, only a closed subset of '
                            '"Output size" items will be send to output.\n'
@@ -103,7 +103,7 @@ class MoveToScratch(EMProtocol):
                            '"Output size" are returned.\n'
                            'If NO is selected, only one open and growing output '
                            'is returned')
-        form.addParam('delay', condition='(revert == False)', IntParam, default=10, label="Delay (sec)",
+        form.addParam('delay', IntParam, default=10, label="Delay (sec)", condition='(revert == False)',
                       validators=[GT(3, "must be larger than 3sec.")],
                       help="Delay in seconds before checking new output")
 
