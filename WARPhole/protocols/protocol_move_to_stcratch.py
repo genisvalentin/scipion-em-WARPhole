@@ -293,6 +293,7 @@ class MoveToScratch(EMProtocol):
         pass
 
     def _moveImages(imgSet):
+        scratchPath = "/media/scratch"	
         imgSetSize = self._getImgSetSize(imtSet)
         freeScratchSpace = self._getFreeScratchSpace(imgSet)
         print("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
