@@ -141,9 +141,7 @@ class MoveToScratch(EMProtocol):
                 where='creation>"' + str(self.check) + '"')]
         else:  # first time
             self.newImages = [m.clone() for m in self.imsSet]
-
-		self._moveImages(self.newImages)
-
+		self.moveImages(self.newImages)
 		self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
         if len(self.newImages) > 0:
