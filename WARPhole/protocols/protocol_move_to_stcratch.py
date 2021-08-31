@@ -230,7 +230,7 @@ class MoveToScratch(EMProtocol):
         else:
             outputSet = SetClass(filename=setFile)
             outputSet.setStreamState(outputSet.STREAM_OPEN)
-
+			
         inputs = self.inputImages.get()
         outputSet.copyInfo(inputs)
         outputSet.copyItems(newImages)
