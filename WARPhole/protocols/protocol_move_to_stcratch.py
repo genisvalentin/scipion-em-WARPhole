@@ -98,7 +98,7 @@ class MoveToScratch(EMProtocol):
                            'If YES is selected it will still running in streaming.')
         form.addParam('splitImages', BooleanParam, default=False,
                       label='Split items to multiple sets?',
-                      condition='allImages',
+                      condition='allImages && revert == False',
                       help='If YES is selected, multiple closed outputs of '
                            '"Output size" are returned.\n'
                            'If NO is selected, only one open and growing output '
