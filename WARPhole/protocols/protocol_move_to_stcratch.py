@@ -141,7 +141,7 @@ class MoveToScratch(EMProtocol):
                 where='creation>"' + str(self.check) + '"')]
         else:  # first time
             self.newImages = [m.clone() for m in self.imsSet]
-        self.moveImages(self.newImages)
+        self._moveImages(self.newImages)
         self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
         if len(self.newImages) > 0:
@@ -293,7 +293,7 @@ class MoveToScratch(EMProtocol):
         pass
 
     def _moveImages(imgSet):
-        scratchPath = "/media/scratch"	
+        scratchPath = "/media/scratch"
         imgSetSize = self._getImgSetSize(imtSet)
         freeScratchSpace = self._getFreeScratchSpace(imgSet)
         print("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
