@@ -109,7 +109,7 @@ class MoveToScratch(EMProtocol):
 
     # --------------------------- INSERT steps functions ----------------------
     def _insertAllSteps(self):
-        print("Input images id {}".format(str(self.inputImages.getNameId())))
+
         if self.revert:
             self.splitImages = False
             self.allImages = True
@@ -337,8 +337,9 @@ class MoveToScratch(EMProtocol):
 
     def _revertImages(self,imgSet):
         for img in imgSet:
-            filename = "pass"
-            img.setFileName(filename)
+            filename = img.getFileName()
+			newFilename = 'Runs'.join([filename.split("Runs")[0]] + filename.split("Runs")[2:])
+            img.setFileName(newFilename)
 
     def _getImgSetSize(self,imgSet):
         totalSize = 0
