@@ -111,8 +111,8 @@ class MoveToScratch(EMProtocol):
     def _insertAllSteps(self):
         print("Input images id {}".format(str(self.inputImages.getNameId())))
         if self.revert:
-			self.splitImages = False
-			self.allImages = True
+            self.splitImages = False
+            self.allImages = True
 
         # initializing variables
         self.finished = False
