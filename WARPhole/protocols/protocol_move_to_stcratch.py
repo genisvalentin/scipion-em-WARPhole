@@ -292,10 +292,10 @@ class MoveToScratch(EMProtocol):
     def _validate(self):
         pass
 
-    def _moveImages(imgSet):
+    def _moveImages(self,imgSet):
         scratchPath = "/media/scratch"
-        imgSetSize = self._getImgSetSize(imtSet)
-        freeScratchSpace = self._getFreeScratchSpace(imgSet)
+        imgSetSize = self._getImgSetSize(imgSet)
+        freeScratchSpace = self._getFreeScratchSpace(scratchPath)
         print("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
         while imgSetSize > freeScratchSpace:
             time.sleep(60)
@@ -316,13 +316,13 @@ class MoveToScratch(EMProtocol):
             	pyworkflow.utils.path.createLink(symlink, newFilename)
             img.setFileName(symlink)
 
-    def _getImgSetSize(imgSet):
+    def _getImgSetSize(self,imgSet):
         totalSize = 0
         for img in imgSet:
             totalSize += pyworkflow.utils.path.getFileSize(img.getFileName())
         return(totalSize)
 
-    def _getFreeScratchSpace(scratchPath):
+    def _getFreeScratchSpace(self,path):
         return(shutil.disk_usage(path).free)
 
     # --------------------------- UTILS functions -----------------------------
