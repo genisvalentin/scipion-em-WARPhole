@@ -315,14 +315,14 @@ class MoveToScratch(EMProtocol):
             	pyworkflow.utils.path.createLink(symlink, newFilename)
             img.setFileName(symlink)
 
-	def _getImgSetSize(imgSet):
-		totalSize = 0
-		for img in imgSet:
+    def _getImgSetSize(imgSet):
+        totalSize = 0
+        for img in imgSet:
             totalSize += pyworkflow.utils.path.getFileSize(img.getFileName())
-		return(totalSize)
+        return(totalSize)
 
-	def _getFreeScratchSpace(scratchPath):
-		return(shutil.disk_usage(path).free)
+    def _getFreeScratchSpace(scratchPath):
+        return(shutil.disk_usage(path).free)
 
     # --------------------------- UTILS functions -----------------------------
     def _getFirstJoinStepName(self):
