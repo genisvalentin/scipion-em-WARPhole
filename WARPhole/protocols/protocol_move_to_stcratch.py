@@ -338,7 +338,7 @@ class MoveToScratch(EMProtocol):
     def _revertImages(self,imgSet):
         for img in imgSet:
             filename = img.getFileName()
-			newFilename = 'Runs'.join([filename.split("Runs")[0]] + filename.split("Runs")[2:])
+            newFilename = 'Runs'.join([filename.split("Runs")[0]] + filename.split("Runs")[2:])
             img.setFileName(newFilename)
 
     def _getImgSetSize(self,imgSet):
