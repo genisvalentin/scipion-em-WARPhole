@@ -96,7 +96,7 @@ class MoveToScratch(EMProtocol):
                       help='If NO is selected, only a closed subset of '
                            '"Output size" items will be send to output.\n'
                            'If YES is selected it will still running in streaming.')
-        form.addParam('splitImages', condition='(revert == False)', BooleanParam, default=False,
+        form.addParam('splitImages', BooleanParam, default=False, condition='(revert == False)',
                       label='Split items to multiple sets?',
                       condition='allImages',
                       help='If YES is selected, multiple closed outputs of '
