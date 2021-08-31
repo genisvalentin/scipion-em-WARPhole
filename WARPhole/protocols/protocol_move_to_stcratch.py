@@ -141,8 +141,8 @@ class MoveToScratch(EMProtocol):
                 where='creation>"' + str(self.check) + '"')]
         else:  # first time
             self.newImages = [m.clone() for m in self.imsSet]
-                self.moveImages(self.newImages)
-                self.splitedImages = self.splitedImages + self.newImages
+        self.moveImages(self.newImages)
+        self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
         if len(self.newImages) > 0:
             for item in self.imsSet.iterItems(orderBy='creation',
@@ -230,7 +230,7 @@ class MoveToScratch(EMProtocol):
         else:
             outputSet = SetClass(filename=setFile)
             outputSet.setStreamState(outputSet.STREAM_OPEN)
-			
+
         inputs = self.inputImages.get()
         outputSet.copyInfo(inputs)
         outputSet.copyItems(newImages)
