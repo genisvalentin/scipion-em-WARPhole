@@ -305,20 +305,20 @@ class MoveToScratch(EMProtocol):
             path,name = os.path.dirname(filename),os.path.basename(filename)
             newFilename = os.path.join(scratchPath,filename)
             pyworkflow.utils.path.makeFilePath(newFilename)
-			symlink = self.protocol._getExtraPath(filename)
-			pyworkflow.utils.path.makeFilePath(symlink)
-			if not os.path.exists(newFilename):
-				print("Moving {} to {}".format(filename,newFilename))
-				pyworkflow.utils.path.copyFile(filename, newFilename)
-			if not os.path.exists(symlink):
-				print("Creating symling from {} to {}".format(symlink,newFilename))
-				pyworkflow.utils.path.createLink(symlink, newFilename)
-			img.setFileName(symlink)
+            symlink = self.protocol._getExtraPath(filename)
+            pyworkflow.utils.path.makeFilePath(symlink)
+            if not os.path.exists(newFilename):
+            	print("Moving {} to {}".format(filename,newFilename))
+            	pyworkflow.utils.path.copyFile(filename, newFilename)
+            if not os.path.exists(symlink):
+            	print("Creating symling from {} to {}".format(symlink,newFilename))
+            	pyworkflow.utils.path.createLink(symlink, newFilename)
+            img.setFileName(symlink)
 
 	def _getImgSetSize(imgSet):
 		totalSize = 0
 		for img in imgSet:
-			totalSize += pyworkflow.utils.path.getFileSize(img.getFileName())
+            totalSize += pyworkflow.utils.path.getFileSize(img.getFileName())
 		return(totalSize)
 
 	def _getFreeScratchSpace(scratchPath):
