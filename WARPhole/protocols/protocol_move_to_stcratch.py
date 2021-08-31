@@ -107,13 +107,6 @@ class MoveToScratch(EMProtocol):
                       validators=[GT(3, "must be larger than 3sec.")],
                       help="Delay in seconds before checking new output")
 
-        form.addParam('movieTimeout', params.FloatParam,
-                      label='Wait for movie alignment files after import? (sec)',
-                      condition='(doImportAlignedMovies == True)',
-                      default=72000,
-                      help="After the particle import is finished, what these many seconds for the movie motion correction star files to be available. Set to zero if the files are already available.")
-
-
     # --------------------------- INSERT steps functions ----------------------
     def _insertAllSteps(self):
         # initializing variables
