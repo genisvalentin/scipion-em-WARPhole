@@ -58,7 +58,7 @@ class CopyToScratch(XmippProtTriggerData):
                 Only one output is returned and it is growing up in batches of
                 a certain number of images (completely in streaming).
     """
-    _label = 'move to scratch'
+    _label = 'copy to scratch'
     _lastUpdateVersion = VERSION_2_0
 
     # --------------------------- DEFINE param functions ----------------------
