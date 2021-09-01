@@ -54,7 +54,12 @@ from xmipp3.protocols.protocol_trigger_data import XmippProtTriggerData
 
 class MoveToScratch(XmippProtTriggerData):
     """
-    Waits until certain number of images is prepared and then
+	Moves particle mrcs files to the scratch drive.
+	The output particle sets are modified so that the particle filenames are
+	symlinks pointing to the scratch drive data.
+	If revert is "Yes", one can revert the symlinks to the original filenames.
+	This is useful if the scratch drive data is not available anymore.
+	Waits until certain number of images is prepared and then
     send them to output.
     It can be done in 3 ways:
         - If *Send all particles to output?*' is _No_:
