@@ -174,7 +174,9 @@ class CopyToScratch(XmippProtTriggerData):
         #totalSize = 0
         #for img in imgSet:
         #    totalSize += pwutils.path.getFileSize(img.getFileName())
-        return(sum(os.path.getsize(img.getFileName()) for img in imgSet if os.path.isfile(img.getFileName())))
+        totalSize = sum(os.path.getsize(img.getFileName()) for img in imgSet if os.path.isfile(img.getFileName()))
+        print("totalSize = :" + str(totalSize))
+        return(totalSize)
 
     def _getFreeScratchSpace(self,path):
         return(shutil.disk_usage(path).free)
