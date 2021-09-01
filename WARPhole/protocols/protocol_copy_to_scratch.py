@@ -184,4 +184,5 @@ class CopyToScratch(XmippProtTriggerData):
         return(totalSize)
 
     def _getFreeScratchSpace(self,path):
+        self.info("freeScratchSpace = :" + str(totalSize))
         return(shutil.disk_usage(path).free)
