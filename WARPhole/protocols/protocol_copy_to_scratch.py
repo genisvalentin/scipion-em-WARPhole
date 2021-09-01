@@ -148,7 +148,7 @@ class CopyToScratch(XmippProtTriggerData):
         print("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
         while imgSetSize > freeScratchSpace:
             time.sleep(60)
-            freeScratchSpace = self._getFreeScratchSpace()
+            freeScratchSpace = self._getFreeScratchSpace(scratchPath)
             print("Not enough scratch space available. Sleeping for 60 seconds")
         for img in imgSet:
             filename = img.getFileName()
