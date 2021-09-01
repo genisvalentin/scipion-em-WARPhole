@@ -37,7 +37,7 @@ from pyworkflow.object import Set
 from pyworkflow.protocol.params import BooleanParam, IntParam, PointerParam, GT, FolderParam
 from xmipp3.protocols.protocol_trigger_data import XmippProtTriggerData
 
-class MoveToScratch(XmippProtTriggerData):
+class CopyToScratch(XmippProtTriggerData):
     """
 	Moves particle mrcs files to the scratch drive.
 	The output particle sets are modified so that the particle filenames are
@@ -157,7 +157,7 @@ class MoveToScratch(XmippProtTriggerData):
             symlink = self._getExtraPath(filename)
             pwutils.path.makeFilePath(symlink)
             if not os.path.exists(newFilename):
-            	print("Moving {} to {}".format(filename,newFilename))
+            	print("Copying {} to {}".format(filename,newFilename))
             	pwutils.path.copyFile(filename, newFilename)
             if not os.path.exists(symlink):
             	print("Creating symlink from {} to {}".format(symlink,newFilename))
