@@ -172,9 +172,14 @@ class CopyToScratch(XmippProtTriggerData):
 
     def _getImgSetSize(self,imgSet):
         #totalSize = 0
-        #for img in imgSet:
-        #    totalSize += pwutils.path.getFileSize(img.getFileName())
-        totalSize = sum(os.path.getsize(img.getFileName()) for img in imgSet if os.path.isfile(img.getFileName()))
+        stacks = []
+        for img in imgSet:
+            stacks.append(img.getFileName())
+        stacks = set(stacks)
+        for img in stacks
+            totalSize += pwutils.path.getFileSize(img)
+        #totalSize2 = sum(os.path.getsize(img.getFileName()) for img in imgSet if os.path.isfile(img.getFileName()))
+        #self.info("totalSize = :" + str(totalSize2))
         self.info("totalSize = :" + str(totalSize))
         return(totalSize)
 
