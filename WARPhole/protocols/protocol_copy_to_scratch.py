@@ -171,7 +171,7 @@ class CopyToScratch(XmippProtTriggerData):
             img.setFileName(newFilename)
 
     def _getImgSetSize(self,imgSet):
-        #totalSize = 0
+        totalSize = 0
         stacks = []
         for img in imgSet:
             stacks.append(img.getFileName())
