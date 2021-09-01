@@ -145,11 +145,11 @@ class CopyToScratch(XmippProtTriggerData):
         scratchPath = str(self.scratchPath)
         imgSetSize = self._getImgSetSize(imgSet)
         freeScratchSpace = self._getFreeScratchSpace(scratchPath)
-        print("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
+        self.info("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
         while imgSetSize > freeScratchSpace:
             time.sleep(60)
             freeScratchSpace = self._getFreeScratchSpace(scratchPath)
-            print("Not enough scratch space available. Sleeping for 60 seconds")
+            self.info("Not enough scratch space available. Sleeping for 60 seconds")
         for img in imgSet:
             filename = img.getFileName()
             newFilename = os.path.join(scratchPath,filename)
@@ -157,10 +157,10 @@ class CopyToScratch(XmippProtTriggerData):
             symlink = self._getExtraPath(filename)
             pwutils.path.makeFilePath(symlink)
             if not os.path.exists(newFilename):
-            	print("Copying {} to {}".format(filename,newFilename))
+            	self.info("Copying {} to {}".format(filename,newFilename))
             	pwutils.path.copyFile(filename, newFilename)
             if not os.path.exists(symlink):
-            	print("Creating symlink from {} to {}".format(symlink,newFilename))
+            	self.info("Creating symlink from {} to {}".format(symlink,newFilename))
             	pwutils.path.createLink(newFilename, symlink)
             img.setFileName(symlink)
 
@@ -175,7 +175,6 @@ class CopyToScratch(XmippProtTriggerData):
         #for img in imgSet:
         #    totalSize += pwutils.path.getFileSize(img.getFileName())
         totalSize = sum(os.path.getsize(img.getFileName()) for img in imgSet if os.path.isfile(img.getFileName()))
-        print("totalSize = :" + str(totalSize))
         self.info("totalSize = :" + str(totalSize))
         return(totalSize)
 
