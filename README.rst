@@ -42,3 +42,4 @@ Same as the "Cumulative 2D classification streamer", but for 3D classifications.
 
 - Copy/Recover a particle set from scratch
 This protocol can copy particle stack files into a scratch drive in streaming. In this way, new paticles are directly moved to the scratch drive and are ready to be used by subsequent jobs.
+The output particle sets point to the copy of the stack files in the scratch drive. After processing, use the "Recover" option to revert the paths back to the original location of the stacks.
