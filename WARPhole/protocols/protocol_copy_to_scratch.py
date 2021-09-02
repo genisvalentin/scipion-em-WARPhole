@@ -152,7 +152,10 @@ class CopyToScratch(XmippProtTriggerData):
             self.info("Not enough scratch space available. Sleeping for 60 seconds")
         for img in imgSet:
             filename = img.getFileName()
-            newFilename = os.path.join(scratchPath,filename)
+            if not filename.startswith(scratchPath):
+                newFilename = os.path.join(scratchPath,filename)
+            else:
+                newFilename = filename
             pwutils.path.makeFilePath(newFilename)
             symlink = self._getExtraPath(filename)
             pwutils.path.makeFilePath(symlink)
@@ -178,10 +181,10 @@ class CopyToScratch(XmippProtTriggerData):
         stacks = set(stacks)
         for img in stacks:
             totalSize += pwutils.path.getFileSize(img)
-        self.info("totalSize:" + str(totalSize))
+        self.info("Image set size (bytes):" + str(totalSize))
         return(totalSize)
 
     def _getFreeScratchSpace(self,path):
         freeSpace = shutil.disk_usage(path).free
-        self.info("freeScratchSpace:" + str(freeSpace))
+        self.info("freeScratchSpace (bytes):" + str(freeSpace))
         return(freeSpace)
