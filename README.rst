@@ -41,4 +41,4 @@ This protocol extends the EMFacilites 2D streamer protocol, which packages the l
 Same as the "Cumulative 2D classification streamer", but for 3D classifications.
 
 - Copy/Recover a particle set from scratch
-This protocol can copy particle stack files into a scratch drive in sreaming. In this way, new paticles are directly move to the scratch drive and are ready to be used by subsequent jobs.
+This protocol can copy particle stack files into a scratch drive in streaming. In this way, new paticles are directly moved to the scratch drive and are ready to be used by subsequent jobs.
