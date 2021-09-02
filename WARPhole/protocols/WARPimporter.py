@@ -172,7 +172,7 @@ class WARPimporter:
         movieName = imgRow.get('rlnMicrographName', None)
 
         #Import the associated movie (*.mrcs)
-        if self.movieSet is not None:
+        if self.movieSet is not None and imgRow.get('rlnMicrographName', None) is not None:
             # Check which is the key to identify micrographs (id or name)
             if movieId is not None:
                 movieKey = movieId
