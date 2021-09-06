@@ -159,7 +159,8 @@ class AssignOpticsGroup(XmippProtTriggerData):
                 break
         self.info("Importing XML files")
         for p in XMLpaths:
-            pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
+            if os.path.isfile(os.path.join(XMLpath,p)):
+                pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
         return(subfolder)
 
     def runAFISscript(self,XMLpath,outputStarFile):
