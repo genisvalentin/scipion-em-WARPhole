@@ -132,11 +132,13 @@ class AssignOpticsGroup(XmippProtTriggerData):
     def assignEPUGroupAFIS(partSet,XMLpath):
         subfolder = importXmlFiles(partSet,XMLpath)
         starFile = os.path.join(subfolder,"optics.star")
+        self.info("Running script in subfolder {} and stafile {}".format(subfolder,starFile))
         runAFISscript(subfolder, starFile)
         micDict = readOpticsGroupStarFile(starFile)
         return(micDict)
 
     def importXmlFiles(partSet,XMLpath):
+        self.info("Looking for XML files in {}".format(XMLpath))
         partPaths = [part.filename() for part in partSet]
         XMLpaths = set([pwutils.path.replaceBaseExt(p, 'xml') for p in partPaths])
         subfolder = datetime.now().strftime("%H%M%S")
@@ -149,17 +151,21 @@ class AssignOpticsGroup(XmippProtTriggerData):
                 if not os.path.isfile(os.path.join(XMLpath,p)):
                     wait = True
             if wait and counter < 11:
+                self.info("Waiting for XML files, sleeping for 60 seconds")
                 time.sleep(self.delay)
             else:
                 break
+        self.info("Importing XML files")
         for p in XMLpaths:
             pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
         return(subfolder)
 
     def runAFISscript(XMLpath,outputStarFile):
+        self.info("Running EPU_Group_AFIS script")
         EPU_Group_AFIS_main(xml_dir = XMLpath, output_fn = outputStarFile)
 
     def readOpticsGroupStarFile(starFile):
+        self.info("Reading optics groups from file: {}".format(starFile))
         og = OpticsGroups.fromStar(starFile)
         micTable = emtable.Table(fileName=inputStar,tableName='micrographs')
         micDict = {row.rlnMicrographName: row.rlnOpticsGroup for row in micTable}
@@ -171,6 +177,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
         return(micDict)
 
     def addOpticsGroup(partSet,micDict):
+        self.info("Updating optics groups in output particle set")
         for mic in partSet:
             ogNumber = micDict.get(mic.filename(),1)
             if not hasattr(mic, '_rlnOpticsGroup'):
