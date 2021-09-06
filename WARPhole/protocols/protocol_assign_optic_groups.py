@@ -18,7 +18,6 @@ import emtable
 from pyworkflow.object import Integer
 from relion.convert.convert31 import OpticsGroups, getPixelSizeLabel
 
-
 import pyworkflow.protocol.constants as cons
 from pyworkflow import VERSION_2_0
 from pwem.protocols import EMProtocol
@@ -26,8 +25,7 @@ from pyworkflow.object import Set
 from pyworkflow.protocol.params import BooleanParam, IntParam, PointerParam, GT, FolderParam
 from xmipp3.protocols.protocol_trigger_data import XmippProtTriggerData
 
-#from .EPU_Group_AFIS import main as EPU_Group_AFIS_main
-from .EPU_Group_AFIS import main
+from WARPhole.protocols.EPU_Group_AFIS import main as EPU_Group_AFIS_main
 
 class AssignOpticsGroup(XmippProtTriggerData):
     """
