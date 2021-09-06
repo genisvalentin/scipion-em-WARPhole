@@ -144,7 +144,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
         partPaths = [part.filename() for part in partSet]
         XMLpaths = set([pwutils.path.replaceBaseExt(p, 'xml') for p in partPaths])
         subfolder = dt.now().strftime("%H%M%S")
-        pwutils.path.makeFilePath(os.path.join(subfolder,path) for path in XMLpaths])
+        pwutils.path.makeFilePath([os.path.join(subfolder,path) for path in XMLpaths])
         counter = 0
         while True: ##Wait until all XML files are available, or give after 10 attempts
             wait = False
