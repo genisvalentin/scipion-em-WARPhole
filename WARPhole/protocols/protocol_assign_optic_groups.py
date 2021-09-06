@@ -13,6 +13,7 @@ https://scipion-em.github.io/docs/_modules/relion/protocols/protocol_assign_opti
 import pyworkflow.utils as pwutils
 import os
 from datetime import datetime
+import time
 import emtable
 from pyworkflow.object import Integer
 from relion.convert.convert31 import OpticsGroups, getPixelSizeLabel
