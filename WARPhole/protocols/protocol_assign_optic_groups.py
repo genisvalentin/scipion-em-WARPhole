@@ -12,7 +12,7 @@ https://scipion-em.github.io/docs/_modules/relion/protocols/protocol_assign_opti
 
 import pyworkflow.utils as pwutils
 import os
-from datetime import datetime as dt
+from datetime import datetime
 import emtable
 from pyworkflow.object import Integer
 from relion.convert.convert31 import OpticsGroups, getPixelSizeLabel
@@ -139,7 +139,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
     def importXmlFiles(partSet,XMLpath):
         partPaths = [part.filename() for part in partSet]
         XMLpaths = set([pwutils.path.replaceBaseExt(p, 'xml') for p in partPaths])
-        subfolder = dt.now().strftime("%H%M%S")
+        subfolder = datetime.now().strftime("%H%M%S")
         pwutils.path.makeFilePath([os.path.join(subfolder,path) for path in XMLpaths])
         counter = 0
         while True: ##Wait until all XML files are available, or give after 10 attempts
