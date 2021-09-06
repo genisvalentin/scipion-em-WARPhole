@@ -186,7 +186,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
     def addOpticsGroup(self,partSet,micDict):
         self.info("Updating optics groups in output particle set")
         for mic in partSet:
-            ogNumber = micDict.get(mic.filename(),1)
+            ogNumber = micDict.get(mic.getFileName(),1)
             if not hasattr(mic, '_rlnOpticsGroup'):
                 mic._rlnOpticsGroup = Integer()
             mic._rlnOpticsGroup.set(Integer(ogNumber))
