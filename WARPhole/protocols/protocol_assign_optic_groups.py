@@ -26,7 +26,8 @@ from pyworkflow.object import Set
 from pyworkflow.protocol.params import BooleanParam, IntParam, PointerParam, GT, FolderParam
 from xmipp3.protocols.protocol_trigger_data import XmippProtTriggerData
 
-from .EPU_Group_AFIS import main as EPU_Group_AFIS_main
+#from .EPU_Group_AFIS import main as EPU_Group_AFIS_main
+from .EPU_Group_AFIS import main
 
 class AssignOpticsGroup(XmippProtTriggerData):
     """
