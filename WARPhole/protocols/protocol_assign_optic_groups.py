@@ -49,9 +49,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
     """
     _label = 'assign optic groups'
     _lastUpdateVersion = VERSION_2_0
-
-    def __init__(self):
-        self.micDict = {'': 0}
+    micDict = {'': 0}
 
     # --------------------------- DEFINE param functions ----------------------
     def _defineParams(self, form):
