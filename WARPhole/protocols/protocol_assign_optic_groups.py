@@ -132,9 +132,9 @@ class AssignOpticsGroup(XmippProtTriggerData):
     #################### Utility fucntions #####################
     def assignEPUGroupAFIS(self,partSet,XMLpath):
         subfolder = self.importXmlFiles(partSet,XMLpath)
-        starFile = os.path.join(subfolder,"optics.star")
         micDict = {}
         if subfolder:
+            starFile = os.path.join(subfolder,"optics.star")
             self.info("Running script in subfolder {} and stafile {}".format(subfolder,starFile))
             self.runAFISscript(subfolder, starFile)
             micDict = self.readOpticsGroupStarFile(starFile)
