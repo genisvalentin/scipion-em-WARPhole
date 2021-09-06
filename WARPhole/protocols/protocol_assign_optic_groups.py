@@ -10,7 +10,6 @@ Re-use the code from:
 https://scipion-em.github.io/docs/_modules/relion/protocols/protocol_assign_optic_groups.html#ProtRelionAssignOpticsGroup
 """
 
-import EPU_Group_AFIS #Placeholder, check the correct import
 import pyworkflow.utils as pwutils
 import os
 from datetime import datetime as dt
@@ -25,7 +24,7 @@ from pyworkflow.object import Set
 from pyworkflow.protocol.params import BooleanParam, IntParam, PointerParam, GT, FolderParam
 from xmipp3.protocols.protocol_trigger_data import XmippProtTriggerData
 
-from WARPhole.protocols.EPU_Group_AFIS import main as EPU_Group_AFIS_main
+from .EPU_Group_AFIS import main as EPU_Group_AFIS_main
 
 class AssignOpticsGroup(XmippProtTriggerData):
     """
