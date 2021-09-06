@@ -18,53 +18,165 @@ import emtable
 from pyworkflow.object import Integer
 from relion.convert.convert31 import OpticsGroups, getPixelSizeLabel
 
-def assignEPUGroupAFIS(micSet,XMLpath):
-    importXmlFiles(micSet,XMLpath)
-    runAFISscript(XMLpath,starFile)
-    micDict = readOpticsGroupStarFile(starFile)
-    return(micDict)
 
-def importXmlFiles(micSet,XMLpath):
-    micPaths = [mic.filename() for mic in micSet]
-    xmlPaths = [pwutils.path.replaceBaseExt(p, 'xml') for p in micPaths]
-    subfolder = dt.now().strftime("%H%M%S")
-    pwutils.path.makeFilePath(os.path.join(subfolder,path) for path in xmlPaths])
-    for p in xmlPaths:
-        pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
+import pyworkflow.protocol.constants as cons
+from pyworkflow import VERSION_2_0
+from pwem.protocols import EMProtocol
+from pyworkflow.object import Set
+from pyworkflow.protocol.params import BooleanParam, IntParam, PointerParam, GT, FolderParam
+from xmipp3.protocols.protocol_trigger_data import XmippProtTriggerData
 
-def runAFISscript(XMLpath,outputStarFile):
-    pass ## TODO: runAFISscript
+from .EPU_Group_AFIS import main as EPU_Group_AFIS_main
 
-def readOpticsGroupStarFile(starFile):
-    og = OpticsGroups.fromStar(starFile)
-    micTable = emtable.Table(fileName=inputStar,tableName='micrographs')
-    micDict = {row.rlnMicrographName: row.rlnOpticsGroup for row in micTable}
-    return(micDict)
+class AssignOpticsGroup(XmippProtTriggerData):
+    """
+	Moves particle mrcs files to the scratch drive.
+	The output particle sets are modified so that the particle filenames are
+	symlinks pointing to the scratch drive data.
+	If revert is "Yes", one can revert the symlinks to the original filenames.
+	This is useful if the scratch drive data is not available anymore.
+	Waits until certain number of images is prepared and then
+    send them to output.
+    It can be done in 3 ways:
+        - If *Send all particles to output?*' is _No_:
+            Once the number of images is reached, a setOfImages is returned and
+            the protocols finished (ending the streaming from this point).
+        - If *Send all particles to output?*' is _Yes_ and:
+            - If *Split particles to multiple sets?* is _Yes_:
+                Multiple closed outputs will be returned as soon as
+                the number of images is reached.
+            - If *Split particles to multiple sets?* is _No_:
+                Only one output is returned and it is growing up in batches of
+                a certain number of images (completely in streaming).
+    """
+    _label = 'assign optic groups'
+    _lastUpdateVersion = VERSION_2_0
 
-def shiftMicDict(micDict,i):
-    for key, value in micDict.iteritems():
-        value = value + i
-    return(micDict)
+    def __init__(self):
+        self.micDict = {'': 0}
 
-def addOpticsGroup(micSet,micDict):
-    for mic in micSet:
-        ogNumber = micDict.get(mic.filename(),1)
-        if not hasattr(mic, '_rlnOpticsGroup'):
-            mic._rlnOpticsGroup = Integer()
-        mic._rlnOpticsGroup.set(Integer(ogNumber))
+    # --------------------------- DEFINE param functions ----------------------
+    def _defineParams(self, form):
 
-############################################
-# In protocol_assign_optic_groups
-############################################
-micDict = assignEPUGroupAFIS(newMicSet,XMLpath)
-micDict = shiftMicDict(micDict,i)
-self.micDict = {**self.micDict, **micDict}
-addOpticsGroup(micSet,self.micDict)
+        form.addSection(label='Input')
 
-'''
-EPU_Group_AFIS.py [-h] --xml_dir XML_DIR [--n_clusters N_CLUSTERS]
-                         [--apix APIX] [--mtf_fn MTF_FN] [--voltage VOLTAGE]
-                         [--cs CS] [--q0 Q0] [--ftype FTYPE]
-                         [--movie_dir MOVIE_DIR] [--output_fn OUTPUT_FN]
-                         [--quiet]
-'''
+        form.addParam('inputImages', PointerParam,
+                      pointerClass='SetOfImages',
+                      label='Input images', important=True)
+
+        form.addParam('XMLpath', FolderParam, label="Path to XML files", important=True)
+
+        form.addParam('outputSize', IntParam, default=10000,
+                      label='Minimum output size',
+                      help='How many particles need to be on input to '
+                           'create output set.')
+
+        form.addParam('allImages', BooleanParam, default=True,
+                      label='Send all items to output?',
+                      help='If NO is selected, only a closed subset of '
+                           '"Output size" items will be send to output.\n'
+                           'If YES is selected it will still running in streaming.')
+
+        form.addParam('splitImages', BooleanParam, default=False,
+                      label='Split items to multiple sets?',
+                      condition='allImages',
+                      help='If YES is selected, multiple closed outputs of '
+                           '"Output size" are returned.\n'
+                           'If NO is selected, only one open and growing output '
+                           'is returned')
+
+        form.addParam('delay', IntParam, default=10, label="Delay (sec)",
+                      validators=[GT(3, "must be larger than 3sec.")],
+                      help="Delay in seconds before checking new output")
+
+    def _checkNewInput(self):
+        imsFile = self.inputImages.get().getFileName()
+        self.lastCheck = getattr(self, 'lastCheck', datetime.now())
+        mTime = datetime.fromtimestamp(os.path.getmtime(imsFile))
+
+        # If the input's sqlite have not changed since our last check,
+        # it does not make sense to check for new input data
+        if self.lastCheck > mTime and hasattr(self, 'newImages'):
+            return None
+
+        # loading the input set in a dynamic way
+        inputClass = self.getImagesClass()
+        self.imsSet = inputClass(filename=imsFile)
+        self.imsSet.loadAllProperties()
+
+        # loading new images to process
+        if len(self.images) > 0:  # taking the non-processed yet
+            self.newImages = [m.clone() for m in self.imsSet.iterItems(
+                orderBy='creation',
+                where='creation>"' + str(self.check) + '"')]
+        else:  # first time
+            self.newImages = [m.clone() for m in self.imsSet]
+
+        micDict = assignEPUGroupAFIS(self.newImages,str(self.XMLpath))
+        micDict = shiftMicDict(micDict,max(self.micDict.values()))
+        self.micDict = {**self.micDict, **micDict}
+        addOpticsGroup(self.newImages,self.micDict)
+
+        self.splitedImages = self.splitedImages + self.newImages
+        self.images = self.images + self.newImages
+        if len(self.newImages) > 0:
+            for item in self.imsSet.iterItems(orderBy='creation',
+                                              direction='DESC'):
+                self.check = item.getObjCreation()
+                break
+
+        self.lastCheck = datetime.now()
+        self.streamClosed = self.imsSet.isStreamClosed()
+        self.imsSet.close()
+
+        # filling the output if needed
+        self._fillingOutput()
+
+    #################### Utility fucntions #####################
+    def assignEPUGroupAFIS(partSet,XMLpath):
+        subfolder = importXmlFiles(partSet,XMLpath)
+        starFile = os.path.join(subfolder,"optics.star")
+        runAFISscript(subfolder, starFile)
+        micDict = readOpticsGroupStarFile(starFile)
+        return(micDict)
+
+    def importXmlFiles(partSet,XMLpath):
+        partPaths = [part.filename() for part in partSet]
+        XMLpaths = set([pwutils.path.replaceBaseExt(p, 'xml') for p in partPaths])
+        subfolder = dt.now().strftime("%H%M%S")
+        pwutils.path.makeFilePath(os.path.join(subfolder,path) for path in XMLpaths])
+        counter = 0
+        while True: ##Wait until all XML files are available, or give after 10 attempts
+            wait = False
+            counter += 1
+            for p in XMLpaths:
+                if not os.path.isfile(os.path.join(XMLpath,p)):
+                    wait = True
+            if wait and counter < 11:
+                time.sleep(self.delay)
+            else:
+                break
+        for p in XMLpaths:
+            pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
+        return(subfolder)
+
+    def runAFISscript(XMLpath,outputStarFile):
+        EPU_Group_AFIS_main(xml_dir = XMLpath, output_fn = outputStarFile)
+
+    def readOpticsGroupStarFile(starFile):
+        og = OpticsGroups.fromStar(starFile)
+        micTable = emtable.Table(fileName=inputStar,tableName='micrographs')
+        micDict = {row.rlnMicrographName: row.rlnOpticsGroup for row in micTable}
+        return(micDict)
+
+    def shiftMicDict(micDict,i):
+        for key, value in micDict.items():
+            micDict[key] = value + i
+        return(micDict)
+
+    def addOpticsGroup(partSet,micDict):
+        for mic in partSet:
+            ogNumber = micDict.get(mic.filename(),1)
+            if not hasattr(mic, '_rlnOpticsGroup'):
+                mic._rlnOpticsGroup = Integer()
+            mic._rlnOpticsGroup.set(Integer(ogNumber))
