@@ -142,7 +142,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
         self.info("Looking for XML files in {}".format(XMLpath))
         partPaths = [part.getFileName() for part in partSet]
         XMLpaths = set([pwutils.path.replaceBaseExt(p, 'xml') for p in partPaths])
-        subfolder = datetime.now().strftime("%H%M%S")
+        subfolder = self._getExtraPath(datetime.now().strftime("%H%M%S"))
         for path in XMLpaths:
             pwutils.path.makeFilePath(os.path.join(subfolder,path))
         counter = 0
