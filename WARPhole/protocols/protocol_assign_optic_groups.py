@@ -125,9 +125,9 @@ class AssignOpticsGroup(XmippProtTriggerData):
         if len(self.images) >= self.outputSize or self.finished:
             if len(self.splitedImages) >= self.outputSize or \
                                     (self.finished and len(self.splitedImages) > 0):
-                self.assignEPUGroupAFIS(self.splitedImages[0:self.outputSize+1],str(self.XMLpath))
+                self.assignEPUGroupAFIS(self.splitedImages[0:int(self.outputSize)+1],str(self.XMLpath))
                 if not self.splitImages:
-                    self.splitedImages = self.splitedImages[self.outputSize+1:]
+                    self.splitedImages = self.splitedImages[int(self.outputSize)+1:]
         # filling the output if needed
         self._fillingOutput()
 
