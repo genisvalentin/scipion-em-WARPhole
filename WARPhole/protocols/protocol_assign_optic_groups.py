@@ -131,7 +131,8 @@ class AssignOpticsGroup(XmippProtTriggerData):
                         self.splitedImages = self.splitedImages[int(self.outputSize)+1:]
         else: #No streaming
             n = int(self.outputSize)
-            for batch in [self.images[i * n:(i + 1) * n] for i in range((len(self.images) + n - 1) // n )]:
+            for batch,i in [(self.images[i * n:(i + 1) * n],i) for i in range((len(self.images) + n - 1) // n )]:
+                self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
                 self.assignEPUGroupAFIS(batch,str(self.XMLpath))
         # filling the output if needed
         self._fillingOutput()
