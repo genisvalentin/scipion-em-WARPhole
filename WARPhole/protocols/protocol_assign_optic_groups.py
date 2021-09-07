@@ -64,7 +64,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
         form.addParam('XMLpath', FolderParam, label="Path to XML files", important=True)
 
         form.addParam('outputSize', IntParam, default=10000,
-                      label='Minimum output size',
+                      label='New optics groups after this many particles',
                       help='How many particles need to be on input to '
                            'create output set.')
 
