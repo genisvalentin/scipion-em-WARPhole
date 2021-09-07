@@ -166,7 +166,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
             for p in XMLpaths:
                 if not os.path.isfile(os.path.join(XMLpath,p)):
                     wait = True
-            if wait and counter < 4:
+            if wait and counter < 4 and self.allImages:
                 self.info("Waiting for XML files, sleeping for {} seconds".format(self.delay))
                 time.sleep(self.delay)
             else:
