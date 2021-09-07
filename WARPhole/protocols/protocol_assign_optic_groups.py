@@ -123,7 +123,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
         self.lastCheck = datetime.now()
         self.streamClosed = self.imsSet.isStreamClosed()
         self.imsSet.close()
-        
+
         if self.allImages: #Streaming and semi-streaming
             if len(self.images) >= self.outputSize or self.finished:
                 if self.splitImages:
@@ -138,18 +138,18 @@ class AssignOpticsGroup(XmippProtTriggerData):
         self._fillingOutput()
 
     #################### Utility fucntions #####################
-    def assignEPUGroupAFISbatch(self,partSet,outputSize,subfolder):
+    def assignEPUGroupAFISbatch(self,partSet,outputSize,XMLpath):
         n = int(outputSize)
         for batch,i in [(partSet[i * n:(i + 1) * n],i) for i in range((len(partSet) + n - 1) // n )]:
             self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
-            self.assignEPUGroupAFIS(batch,str(self.XMLpath),subfolder)
+            self.assignEPUGroupAFIS(batch,XMLpath)
 
-    def assignEPUGroupAFIS(self,partSet,XMLpath,subfolder):
+    def assignEPUGroupAFIS(self,partSet,XMLpath):
         micDict = {}
-        if subfolder:
-            starFile = os.path.join(subfolder,"optics.star")
-            self.info("Running script in subfolder {} and stafile {}".format(subfolder,starFile))
-            self.runAFISscript(subfolder, starFile)
+        if XMLpath:
+            starFile = os.path.join(XMLpath,"optics.star")
+            self.info("Running script in subfolder {} and stafile {}".format(XMLpath,starFile))
+            self.runAFISscript(XMLpath, starFile)
             micDict = self.readOpticsGroupStarFile(starFile)
         else:
             micDict = dict.fromkeys([part.getFileName() for part in partSet],1)
