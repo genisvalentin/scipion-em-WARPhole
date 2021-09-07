@@ -109,7 +109,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
         else:  # first time
             self.newImages = [m.clone() for m in self.imsSet]
 
-        self.AssignOpticsGroup(self.newImages,{}) #Add optics group 1 to all images by default
+        self.addOpticsGroup(self.newImages,{}) #Add optics group 1 to all images by default
         self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
 
