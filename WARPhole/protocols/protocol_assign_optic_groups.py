@@ -69,7 +69,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
                            'create output set.')
 
         form.addParam('allImages', BooleanParam, default=True,
-                      label='Send all items to output?',
+                      label='Streaming?',
                       help='If NO is selected, only a closed subset of '
                            '"Output size" items will be send to output.\n'
                            'If YES is selected it will still running in streaming.')
@@ -160,13 +160,13 @@ class AssignOpticsGroup(XmippProtTriggerData):
         for path in XMLpaths:
             pwutils.path.makeFilePath(os.path.join(subfolder,path))
         counter = 0
-        while True: ##Wait until all XML files are available, or give after 10 attempts
+        while True: ##Wait until all XML files are available, or give up after 10 attempts
             wait = False
             counter += 1
             for p in XMLpaths:
                 if not os.path.isfile(os.path.join(XMLpath,p)):
                     wait = True
-            if wait and counter < 11:
+            if wait and counter < 4:
                 self.info("Waiting for XML files, sleeping for {} seconds".format(self.delay))
                 time.sleep(self.delay)
             else:
