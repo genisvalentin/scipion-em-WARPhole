@@ -128,7 +128,10 @@ class AssignOpticsGroup(XmippProtTriggerData):
                 if self.splitImages:
                     if len(self.splitedImages) >= self.outputSize or \
                                             (self.finished and len(self.splitedImages) > 0):
-                        self.assignEPUGroupAFIS(self.splitedImages[0:int(self.outputSize)+1],str(self.XMLpath),subfolder)
+                        n = int(self.outputSize)
+                        for batch,i in [(self.splitedImages[i * n:(i + 1) * n],i) for i in range((len(self.splitedImages) + n - 1) // n )]:
+                            self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
+                            self.assignEPUGroupAFIS(batch,str(self.XMLpath),subfolder)
                 else:
                     n = int(self.outputSize)
                     for batch,i in [(self.newImages[i * n:(i + 1) * n],i) for i in range((len(self.newImages) + n - 1) // n )]:
@@ -138,7 +141,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
             n = int(self.outputSize)
             for batch,i in [(self.images[i * n:(i + 1) * n],i) for i in range((len(self.images) + n - 1) // n )]:
                 self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
-                self.assignEPUGroupAFIS(batch,str(self.XMLpath))
+                self.assignEPUGroupAFIS(batch,str(self.XMLpath),subfolder)
         # filling the output if needed
         self._fillingOutput()
 
