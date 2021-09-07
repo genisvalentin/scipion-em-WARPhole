@@ -122,13 +122,17 @@ class AssignOpticsGroup(XmippProtTriggerData):
         self.lastCheck = datetime.now()
         self.streamClosed = self.imsSet.isStreamClosed()
         self.imsSet.close()
-
-        if len(self.images) >= self.outputSize or self.finished:
-            if len(self.splitedImages) >= self.outputSize or \
-                                    (self.finished and len(self.splitedImages) > 0):
-                self.assignEPUGroupAFIS(self.splitedImages[0:int(self.outputSize)+1],str(self.XMLpath))
-                if not self.splitImages:
-                    self.splitedImages = self.splitedImages[int(self.outputSize)+1:]
+        if self.allImages: #Streaming and semi-streaming
+            if len(self.images) >= self.outputSize or self.finished:
+                if len(self.splitedImages) >= self.outputSize or \
+                                        (self.finished and len(self.splitedImages) > 0):
+                    self.assignEPUGroupAFIS(self.splitedImages[0:int(self.outputSize)+1],str(self.XMLpath))
+                    if not self.splitImages: #Full streaming
+                        self.splitedImages = self.splitedImages[int(self.outputSize)+1:]
+        else: #No streaming
+            n = int(self.outputSize)
+            for batch in [self.images[i * n:(i + 1) * n] for i in range((len(self.images) + n - 1) // n )]
+                self.assignEPUGroupAFIS(batch,str(self.XMLpath))
         # filling the output if needed
         self._fillingOutput()
 
@@ -161,17 +165,19 @@ class AssignOpticsGroup(XmippProtTriggerData):
                 if not os.path.isfile(os.path.join(XMLpath,p)):
                     wait = True
             if wait and counter < 11:
-                self.info("Waiting for XML files, sleeping for 60 seconds")
+                self.info("Waiting for XML files, sleeping for {} seconds".format(self.delay))
                 time.sleep(self.delay)
             else:
                 break
-        self.info("Importing XML files")
-        return_val = 0
-        for p in XMLpaths:
-            if os.path.isfile(os.path.join(XMLpath,p)):
-                pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
-                return_val = subfolder
-        return(return_val)
+        if wait:
+            self.info("No XML files found")
+            return(0)
+        else:
+            self.info("Copying XML files")
+            for p in XMLpaths:
+                if os.path.isfile(os.path.join(XMLpath,p)):
+                    pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
+                return(subfolder)
 
     def runAFISscript(self,XMLpath,outputStarFile):
         self.info("Running EPU_Group_AFIS script")
