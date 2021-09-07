@@ -110,7 +110,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
             self.newImages = [m.clone() for m in self.imsSet]
 
         self.addOpticsGroup(self.newImages,{}) #Add optics group 1 to all images by default
-        subfolder = self.importXmlFiles(partSet,XMLpath)
+        subfolder = self.importXmlFiles(self.newImages,XMLpath)
         self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
 
