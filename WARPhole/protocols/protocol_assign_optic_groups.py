@@ -123,29 +123,26 @@ class AssignOpticsGroup(XmippProtTriggerData):
         self.lastCheck = datetime.now()
         self.streamClosed = self.imsSet.isStreamClosed()
         self.imsSet.close()
+        
         if self.allImages: #Streaming and semi-streaming
             if len(self.images) >= self.outputSize or self.finished:
                 if self.splitImages:
                     if len(self.splitedImages) >= self.outputSize or \
                                             (self.finished and len(self.splitedImages) > 0):
-                        n = int(self.outputSize)
-                        for batch,i in [(self.splitedImages[i * n:(i + 1) * n],i) for i in range((len(self.splitedImages) + n - 1) // n )]:
-                            self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
-                            self.assignEPUGroupAFIS(batch,str(self.XMLpath),subfolder)
+                        self.assignEPUGroupAFISbatch(self.splitedImages,self.outputSize,subfolder)
                 else:
-                    n = int(self.outputSize)
-                    for batch,i in [(self.newImages[i * n:(i + 1) * n],i) for i in range((len(self.newImages) + n - 1) // n )]:
-                        self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
-                        self.assignEPUGroupAFIS(batch,str(self.XMLpath),subfolder)
+                    self.assignEPUGroupAFISbatch(self.newImages,self.outputSize,subfolder)
         else: #No streaming
-            n = int(self.outputSize)
-            for batch,i in [(self.images[i * n:(i + 1) * n],i) for i in range((len(self.images) + n - 1) // n )]:
-                self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
-                self.assignEPUGroupAFIS(batch,str(self.XMLpath),subfolder)
+            self.assignEPUGroupAFISbatch(self.images,self.outputSize,subfolder)
         # filling the output if needed
         self._fillingOutput()
 
     #################### Utility fucntions #####################
+    def assignEPUGroupAFISbatch(self,partSet,outputSize,subfolder):
+        n = int(outputSize)
+        for batch,i in [(partSet[i * n:(i + 1) * n],i) for i in range((len(partSet) + n - 1) // n )]:
+            self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
+            self.assignEPUGroupAFIS(batch,str(self.XMLpath),subfolder)
 
     def assignEPUGroupAFIS(self,partSet,XMLpath,subfolder):
         micDict = {}
