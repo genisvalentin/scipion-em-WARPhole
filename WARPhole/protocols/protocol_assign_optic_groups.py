@@ -110,6 +110,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
             self.newImages = [m.clone() for m in self.imsSet]
 
         self.addOpticsGroup(self.newImages,{}) #Add optics group 1 to all images by default
+        subfolder = self.importXmlFiles(partSet,XMLpath)
         self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
 
@@ -127,12 +128,12 @@ class AssignOpticsGroup(XmippProtTriggerData):
                 if self.splitImages:
                     if len(self.splitedImages) >= self.outputSize or \
                                             (self.finished and len(self.splitedImages) > 0):
-                        self.assignEPUGroupAFIS(self.splitedImages[0:int(self.outputSize)+1],str(self.XMLpath))
+                        self.assignEPUGroupAFIS(self.splitedImages[0:int(self.outputSize)+1],str(self.XMLpath),subfolder)
                 else:
                     n = int(self.outputSize)
                     for batch,i in [(self.newImages[i * n:(i + 1) * n],i) for i in range((len(self.newImages) + n - 1) // n )]:
                         self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
-                        self.assignEPUGroupAFIS(batch,str(self.XMLpath))
+                        self.assignEPUGroupAFIS(batch,str(self.XMLpath),subfolder)
         else: #No streaming
             n = int(self.outputSize)
             for batch,i in [(self.images[i * n:(i + 1) * n],i) for i in range((len(self.images) + n - 1) // n )]:
@@ -143,8 +144,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
 
     #################### Utility fucntions #####################
 
-    def assignEPUGroupAFIS(self,partSet,XMLpath):
-        subfolder = self.importXmlFiles(partSet,XMLpath)
+    def assignEPUGroupAFIS(self,partSet,XMLpath,subfolder):
         micDict = {}
         if subfolder:
             starFile = os.path.join(subfolder,"optics.star")
