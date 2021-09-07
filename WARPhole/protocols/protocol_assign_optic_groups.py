@@ -109,13 +109,9 @@ class AssignOpticsGroup(XmippProtTriggerData):
         else:  # first time
             self.newImages = [m.clone() for m in self.imsSet]
 
-        micDict = self.assignEPUGroupAFIS(self.newImages,str(self.XMLpath))
-        micDict =self. shiftMicDict(micDict,max(self.micDict.values()))
-        self.micDict = {**self.micDict, **micDict}
-        self.addOpticsGroup(self.newImages,self.micDict)
-
         self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
+
         if len(self.newImages) > 0:
             for item in self.imsSet.iterItems(orderBy='creation',
                                               direction='DESC'):
@@ -126,10 +122,17 @@ class AssignOpticsGroup(XmippProtTriggerData):
         self.streamClosed = self.imsSet.isStreamClosed()
         self.imsSet.close()
 
+        if len(self.images) >= self.outputSize or self.finished:
+            if len(self.splitedImages) >= self.outputSize or \
+                                    (self.finished and len(self.splitedImages) > 0):
+                self.assignEPUGroupAFIS(self.splitedImages[0:self.outputSize+1],str(self.XMLpath))
+                if not self.splitImages:
+                    self.splitedImages = self.splitedImages[self.outputSize+1:]
         # filling the output if needed
         self._fillingOutput()
 
     #################### Utility fucntions #####################
+
     def assignEPUGroupAFIS(self,partSet,XMLpath):
         subfolder = self.importXmlFiles(partSet,XMLpath)
         micDict = {}
@@ -138,7 +141,9 @@ class AssignOpticsGroup(XmippProtTriggerData):
             self.info("Running script in subfolder {} and stafile {}".format(subfolder,starFile))
             self.runAFISscript(subfolder, starFile)
             micDict = self.readOpticsGroupStarFile(starFile)
-        return(micDict)
+        micDict = self.shiftMicDict(micDict,max(self.micDict.values()))
+        self.micDict = {**self.micDict, **micDict}
+        self.addOpticsGroup(partSet,self.micDict)
 
     def importXmlFiles(self,partSet,XMLpath):
         self.info("Looking for XML files in {}".format(XMLpath))
