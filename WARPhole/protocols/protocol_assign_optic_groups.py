@@ -146,6 +146,8 @@ class AssignOpticsGroup(XmippProtTriggerData):
             self.info("Running script in subfolder {} and stafile {}".format(subfolder,starFile))
             self.runAFISscript(subfolder, starFile)
             micDict = self.readOpticsGroupStarFile(starFile)
+        else:
+            micDict = dict.fromkeys([part.getFileName() for part in partSet],1)
         micDict = self.shiftMicDict(micDict,max(self.micDict.values()))
         self.micDict = {**self.micDict, **micDict}
         self.addOpticsGroup(partSet,self.micDict)
