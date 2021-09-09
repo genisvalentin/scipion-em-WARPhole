@@ -176,14 +176,15 @@ class AssignOpticsGroup(XmippProtTriggerData):
                 time.sleep(self.delay)
             else:
                 break
-
-        self.info("Copying XML files")
-        ret_val = 0
-        for p in XMLpaths:
-            if os.path.isfile(os.path.join(XMLpath,p)):
-                pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
-                ret_val = subfolder
-        return(ret_val)
+        if len(os.listdir(XMLpath))==0:
+            self.info("No XML files found")
+            return(0)
+        else:
+            self.info("Copying XML files")
+            for p in XMLpaths:
+                if os.path.isfile(os.path.join(XMLpath,p)):
+                    pwutils.path.copyFile(os.path.join(XMLpath,p), os.path.join(subfolder,p))
+            return(subfolder)
 
     def runAFISscript(self,XMLpath,outputStarFile):
         self.info("Running EPU_Group_AFIS script")
