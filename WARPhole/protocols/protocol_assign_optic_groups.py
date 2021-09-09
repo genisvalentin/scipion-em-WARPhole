@@ -110,7 +110,6 @@ class AssignOpticsGroup(XmippProtTriggerData):
             self.newImages = [m.clone() for m in self.imsSet]
 
         self.addOpticsGroup(self.newImages,{}) #Add optics group 1 to all images by default
-        subfolder = self.importXmlFiles(self.newImages,str(self.XMLpath))
         self.splitedImages = self.splitedImages + self.newImages
         self.images = self.images + self.newImages
 
@@ -129,23 +128,24 @@ class AssignOpticsGroup(XmippProtTriggerData):
                 if self.splitImages:
                     if len(self.splitedImages) >= self.outputSize or \
                                             (self.finished and len(self.splitedImages) > 0):
-                        self.assignEPUGroupAFISbatch(self.splitedImages,self.outputSize,subfolder)
+                        self.assignEPUGroupAFISbatch(self.splitedImages,self.outputSize)
                 else:
-                    self.assignEPUGroupAFISbatch(self.newImages,self.outputSize,subfolder)
+                    self.assignEPUGroupAFISbatch(self.newImages,self.outputSize)
         else: #No streaming
-            self.assignEPUGroupAFISbatch(self.images,self.outputSize,subfolder)
+            self.assignEPUGroupAFISbatch(self.images,self.outputSize)
         # filling the output if needed
         self._fillingOutput()
 
     #################### Utility fucntions #####################
-    def assignEPUGroupAFISbatch(self,partSet,outputSize,XMLpath):
+    def assignEPUGroupAFISbatch(self,partSet,outputSize):
         n = int(outputSize)
         for batch,i in [(partSet[i * n:(i + 1) * n],i) for i in range((len(partSet) + n - 1) // n )]:
             self.info("AssignOpticsGroup for particles {} to {}".format(i*n,(i+1)*n))
-            self.assignEPUGroupAFIS(batch,XMLpath)
+            self.assignEPUGroupAFIS(batch)
 
-    def assignEPUGroupAFIS(self,partSet,XMLpath):
+    def assignEPUGroupAFIS(self,partSet):
         micDict = {}
+        XMLpath = self.importXmlFiles(partSet,str(self.XMLpath))
         if XMLpath:
             starFile = os.path.join(XMLpath,"optics.star")
             self.info("Running script in subfolder {} and stafile {}".format(XMLpath,starFile))
