@@ -12,6 +12,7 @@ https://scipion-em.github.io/docs/_modules/relion/protocols/protocol_assign_opti
 
 import pyworkflow.utils as pwutils
 import os
+import re
 from datetime import datetime
 import time
 import emtable
@@ -156,6 +157,11 @@ class AssignOpticsGroup(XmippProtTriggerData):
         micDict = self.shiftMicDict(micDict,max(self.micDict.values()))
         self.micDict = {**self.micDict, **micDict}
         self.addOpticsGroup(partSet,self.micDict)
+
+    def micrograph2xml(self,filename):
+        f = pwutils.path.removeBaseExt(filename)
+        f = re.match(r'FoilHole_\d+_Data_\d+_\d+_\d+_\d+',f)[0]
+        return(str(f)+".xml")
 
     def importXmlFiles(self,partSet,XMLpath):
         self.info("Looking for XML files in {}".format(XMLpath))
