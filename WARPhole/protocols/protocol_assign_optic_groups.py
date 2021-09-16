@@ -204,7 +204,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
         self.info("Reading optics groups from file: {}".format(starFile))
         og = OpticsGroups.fromStar(starFile)
         micTable = emtable.Table(fileName=starFile,tableName='movies')
-        micDict = {row._rlnMicrographMovieName: row.rlnOpticsGroup for row in micTable}
+        micDict = {row.rlnMicrographMovieName: row.rlnOpticsGroup for row in micTable}
         return(micDict)
 
     def shiftMicDict(self,micDict,i):
