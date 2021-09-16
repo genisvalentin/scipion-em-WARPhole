@@ -166,7 +166,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
     def importXmlFiles(self,partSet,XMLpath):
         self.info("Looking for XML files in {}".format(XMLpath))
         partPaths = [part.getFileName() for part in partSet]
-        XMLpaths = set([pwutils.path.replaceBaseExt(p, 'xml') for p in partPaths])
+        XMLpaths = set([self.micrograph2xml(p) for p in partPaths])
         subfolder = self._getExtraPath(datetime.now().strftime("%H%M%S"))
         for path in XMLpaths:
             pwutils.path.makeFilePath(os.path.join(subfolder,path))
