@@ -166,7 +166,7 @@ def main(xml_dir = os.getcwd(), n_clusters = 1, apix = 1.00,
         _ = input('If happy with cluster press any key (Ctrl-C to abort)')
     output_plt,ext = os.path.splitext(output_fn)
     plt.savefig(output_plt+'.png')
-    plt.close('all')
+    #plt.close('all')
 
     entries = sorted(zip(metadata_fns, optics_groups),
             key=lambda x:(x[0], x[1]))
