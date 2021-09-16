@@ -193,7 +193,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
 
     def runAFISscript(self,XMLpath,outputStarFile):
         self.info("Running EPU_Group_AFIS script")
-        EPU_Group_AFIS_main(xml_dir = XMLpath, output_fn = outputStarFile, quiet = True)
+        EPU_Group_AFIS_main(xml_dir = XMLpath, output_fn = outputStarFile, quiet = True, n_clusters = 9)
 
     def readOpticsGroupStarFile(self,starFile):
         self.info("Reading optics groups from file: {}".format(starFile))

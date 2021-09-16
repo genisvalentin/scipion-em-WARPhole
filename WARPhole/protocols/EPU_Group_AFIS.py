@@ -148,23 +148,25 @@ def main(xml_dir = os.getcwd(), n_clusters = 1, apix = 1.00,
     sort_idxs = [x[0] for x in sorted(grid_dists, key=lambda x:(x[3], x[4]))]
     optics_groups = [sort_idxs.index(x) + 1 for x in optics_clusters]
 
+    figure = plt.figure()
+    axes = figure.add_subplot(111)
+    axes.set_title('EPU AFIS Beam Shift Values')
+    axes.set_xlabel('Beam Shift X (a.u.)')
+    axes.set_ylabel('Beam Shift Y (a.u.)')
+    axes.scatter(shift_array[:, 0], shift_array[:, 1], c=optics_groups,
+            cmap='tab20')
+
+    for optics_group in range(n_clusters):
+        axes.annotate('{0:d}'.format(optics_group + 1),
+                xy = cluster_centers[sort_idxs[optics_group]],
+                textcoords = 'offset pixels', xytext=(10, 10))
+
+    plt.show(block = False)
     if not quiet:
-        figure = plt.figure()
-        axes = figure.add_subplot(111)
-        axes.set_title('EPU AFIS Beam Shift Values')
-        axes.set_xlabel('Beam Shift X (a.u.)')
-        axes.set_ylabel('Beam Shift Y (a.u.)')
-        axes.scatter(shift_array[:, 0], shift_array[:, 1], c=optics_groups,
-                cmap='tab20')
-
-        for optics_group in range(n_clusters):
-            axes.annotate('{0:d}'.format(optics_group + 1),
-                    xy = cluster_centers[sort_idxs[optics_group]],
-                    textcoords = 'offset pixels', xytext=(10, 10))
-
-        plt.show(block = False)
         _ = input('If happy with cluster press any key (Ctrl-C to abort)')
-        plt.close('all')
+    output_plt,ext = os.path.splitext(output_fn)
+    plt.savefig(output_plt+'.png')
+    plt.close('all')
 
     entries = sorted(zip(metadata_fns, optics_groups),
             key=lambda x:(x[0], x[1]))
