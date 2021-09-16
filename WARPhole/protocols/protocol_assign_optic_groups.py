@@ -163,6 +163,11 @@ class AssignOpticsGroup(XmippProtTriggerData):
         f = re.match(r'FoilHole_\d+_Data_\d+_\d+_\d+_\d+',f)[0]
         return(str(f)+".xml")
 
+    def particle2micrograph(self,filename):
+        f = pwutils.path.removeBaseExt(filename)
+        f = re.match(r'FoilHole_\d+_Data_\d+_\d+_\d+_\d+',f)[0]
+        return(str(f)+"_Fractions.mrc")
+
     def importXmlFiles(self,partSet,XMLpath):
         self.info("Looking for XML files in {}".format(XMLpath))
         partPaths = [part.getFileName() for part in partSet]
@@ -210,7 +215,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
     def addOpticsGroup(self,partSet,micDict):
         self.info("Updating optics groups in output particle set")
         for part in partSet:
-            ogNumber = micDict.get(part.getFileName(),1)
+            ogNumber = micDict.get(self.particle2micrograph(part.getFileName()),1)
             if not hasattr(part, '_rlnOpticsGroup'):
                 part._rlnOpticsGroup = Integer()
             part._rlnOpticsGroup.set(Integer(ogNumber))
