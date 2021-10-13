@@ -99,22 +99,7 @@ class CopyToScratch(XmippProtTriggerData):
                       help="Delay in seconds before checking new output")
 
     # --------------------------- INSERT steps functions ----------------------
-    def _insertAllSteps(self):
-        # initializing variables
-        self.finished = False
-        self.images = []
-        self.splitedImages = []
-        self.outputCount = 0
-        self.setImagesClass()
-        while not self.setImagesType():
-            self.info("Could not get input images type. Sleeping {}".format(self.delay))
-            time.sleep(self.delay)
-        self.setImagesType()
 
-        # steps
-        imsSteps = self._insertFunctionStep('delayStep')
-        self._insertFunctionStep('createOutputStep',
-                                 prerequisites=[imsSteps], wait=True)
     def _checkNewInput(self):
         imsFile = self.inputImages.get().getFileName()
         self.lastCheck = getattr(self, 'lastCheck', datetime.now())
