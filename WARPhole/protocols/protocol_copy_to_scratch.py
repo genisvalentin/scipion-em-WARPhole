@@ -122,6 +122,8 @@ class CopyToScratch(XmippProtTriggerData):
                 where='creation>"' + str(self.check) + '"')]
         else:  # first time
             self.newImages = [m.clone() for m in self.imsSet]
+        self.lastCheck = datetime.now()
+        
         if self.revert:
             self._revertImages(self.newImages)
         else:
@@ -134,7 +136,6 @@ class CopyToScratch(XmippProtTriggerData):
                 self.check = item.getObjCreation()
                 break
 
-        self.lastCheck = datetime.now()
         self.streamClosed = self.imsSet.isStreamClosed()
         self.imsSet.close()
 
