@@ -108,8 +108,10 @@ class CopyToScratch(XmippProtTriggerData):
         self.setImagesClass()
         self.setImagesType()
         while not self._inputType:
+            self.info("Cannot get input set. Waiting 10 seconds.")
             time.sleep(10)
             self.setImagesType()
+        self.info("Input type was set to {}".format(self._inputType))
 
         # steps
         imsSteps = self._insertFunctionStep('delayStep')
