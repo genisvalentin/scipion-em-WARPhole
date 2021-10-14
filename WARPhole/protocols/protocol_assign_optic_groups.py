@@ -149,7 +149,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
         XMLpath = self.importXmlFiles(partSet,str(self.XMLpath))
         if XMLpath:
             starFile = os.path.join(XMLpath,"optics.star")
-            self.info("Running script in subfolder {} and stafile {}".format(XMLpath,starFile))
+            self.info("Running script in subfolder {} and starfile {}".format(XMLpath,starFile))
             self.runAFISscript(XMLpath, starFile)
             micDict = self.readOpticsGroupStarFile(starFile)
         else:
@@ -216,7 +216,9 @@ class AssignOpticsGroup(XmippProtTriggerData):
     def addOpticsGroup(self,partSet,micDict):
         self.info("Updating optics groups in output particle set")
         for part in partSet:
-            ogNumber = micDict.get(self.particle2micrograph(part.getFileName()),1)
+            ogNumber = micDict.get(self.particle2micrograph(part.getFileName()),None)
+            if not ogNumber: #If the XML file was not found, the micDict will contain the particle name and not the micrograph name
+                ogNumber = micDict.get(part.getFileName(),1)
             if not hasattr(part, '_rlnOpticsGroup'):
                 part._rlnOpticsGroup = Integer()
             part._rlnOpticsGroup.set(Integer(ogNumber))
