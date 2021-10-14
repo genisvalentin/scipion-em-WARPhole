@@ -154,6 +154,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
             micDict = self.readOpticsGroupStarFile(starFile)
         else:
             micDict = dict.fromkeys([part.getFileName() for part in partSet],1)
+            self.info("Shifting by {}".format(str(max(self.micDict.values()))))
         micDict = self.shiftMicDict(micDict,max(self.micDict.values()))
         self.micDict = {**self.micDict, **micDict}
         self.addOpticsGroup(partSet,self.micDict)
@@ -209,7 +210,7 @@ class AssignOpticsGroup(XmippProtTriggerData):
 
     def shiftMicDict(self,micDict,i):
         for key, value in micDict.items():
-            micDict[key] = 2
+            micDict[key] = value + i
         return(micDict)
 
     def addOpticsGroup(self,partSet,micDict):
