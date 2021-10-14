@@ -309,6 +309,5 @@ class WARPholeImportParticles(EMProtocol):
         f = open(self._getStopStreamingFilename(), 'w')
         f.close()
 
-
     def streamingHasFinished(self):
         return os.path.exists(self._getStopStreamingFilename())
