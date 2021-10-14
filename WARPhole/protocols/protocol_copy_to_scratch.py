@@ -107,7 +107,7 @@ class CopyToScratch(XmippProtTriggerData):
         self.outputCount = 0
         self.setImagesClass()
         self.setImagesType()
-        while not self.'_inputType':
+        while not self._inputType:
             time.sleep(10)
             self.setImagesType()
 
