@@ -189,3 +189,6 @@ class CopyToScratch(XmippProtTriggerData):
         freeSpace = shutil.disk_usage(path).free
         self.info("freeScratchSpace (bytes):" + str(freeSpace))
         return(freeSpace)
+
+    def setImagesType(self):
+        self.info("Set images type")
