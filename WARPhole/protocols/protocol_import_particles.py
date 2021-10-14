@@ -294,7 +294,7 @@ class WARPholeImportParticles(EMProtocol):
         It will allow a user to manually stop the streaming.
         """
         # Only allow to stop if running and in streaming mode
-        if self.dataStreaming and self.isRunning():
+        if self.isRunning():
             return [('STOP STREAMING', self.stopImport)]
         else:
             return []
