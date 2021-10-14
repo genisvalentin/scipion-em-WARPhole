@@ -189,6 +189,8 @@ class WARPholeImportParticles(EMProtocol):
                 #Break the loop
                 self.warning("Star file was not updated in", time.time() - self.mtime(self.importFilePath))
                 finish = True
+            elif self.streamingHasFinished():
+                finish = True
             else:
                 time.sleep(self.fileTimeout.get())
             #First we update and close the streaming of the datasets
@@ -281,3 +283,32 @@ class WARPholeImportParticles(EMProtocol):
     def _methods(self):
         methods = ["Methods are not implemented"]
         return methods
+
+    # --------------- Streaming special functions -----------------------
+    def _getStopStreamingFilename(self):
+        return self._getExtraPath("STOP_STREAMING.TXT")
+
+    def getActions(self):
+        """ This method will allow that the 'Stop import' action to appears
+        in the GUI when the user right-click in the protocol import box.
+        It will allow a user to manually stop the streaming.
+        """
+        # Only allow to stop if running and in streaming mode
+        if self.dataStreaming and self.isRunning():
+            return [('STOP STREAMING', self.stopImport)]
+        else:
+            return []
+
+    def stopImport(self):
+        """ Since the actual protocol that is running is in a different
+        we will use a simple mechanism to place an special file to stop
+        process that the one that this method will be invoked from the GUI,
+        the streaming.
+        """
+        # Just place an special file into the run folder
+        f = open(self._getStopStreamingFilename(), 'w')
+        f.close()
+
+
+    def streamingHasFinished(self):
+        return os.path.exists(self._getStopStreamingFilename())
