@@ -123,7 +123,7 @@ class CopyToScratch(XmippProtTriggerData):
         else:  # first time
             self.newImages = [m.clone() for m in self.imsSet]
         self.lastCheck = datetime.now()
-        
+
         if self.revert:
             self._revertImages(self.newImages)
         else:
@@ -189,3 +189,13 @@ class CopyToScratch(XmippProtTriggerData):
         freeSpace = shutil.disk_usage(path).free
         self.info("freeScratchSpace (bytes):" + str(freeSpace))
         return(freeSpace)
+
+    def setImagesType(self):
+        inputSet = self.inputImages.get()
+        while not inputSet:
+            self.info("Cannot get input images. Waiting 10 seconds.")
+            time.sleep(10)
+            inputSet = self.inputImages.get()
+        inputClassName = inputSet.getClassName()
+        self.info("Set input type to {}".format(inputClassName))
+        self._inputType = inputClassName.split('SetOf')[1]
