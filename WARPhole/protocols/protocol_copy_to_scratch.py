@@ -183,7 +183,7 @@ class CopyToScratch(XmippProtTriggerData):
             	pwutils.path.copyFile(filename, newFilename)
             if not os.path.exists(symlink):
             	self.info("Creating symlink from {} to {}".format(symlink,newFilename))
-            	pwutils.path.createLink(newFilename, symlink)
+            	pwutils.path.createAbsLink(newFilename, symlink)
             img.setFileName(symlink)
 
     def _revertImages(self,imgSet):
