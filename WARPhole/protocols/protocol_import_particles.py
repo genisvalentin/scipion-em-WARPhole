@@ -187,8 +187,9 @@ class WARPholeImportParticles(EMProtocol):
             #If the import file has not been modified after some time time, stop importing. Else sleep and do another interation
             if time.time() - self.mtime(self.importFilePath) > timeDifference + self.fileTimeout.get():
                 #Break the loop
-                self.warning("Star file was not updated in", time.time() - self.mtime(self.importFilePath))
-                finish = True
+                #self.warning("Star file was not updated in", time.time() - self.mtime(self.importFilePath))
+                #finish = True
+                pass
             elif self.streamingHasFinished():
                 finish = True
             else:
