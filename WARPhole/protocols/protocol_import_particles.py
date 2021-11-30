@@ -190,9 +190,10 @@ class WARPholeImportParticles(EMProtocol):
                 #self.warning("Star file was not updated in", time.time() - self.mtime(self.importFilePath))
                 #finish = True
                 #pass
-            if self.streamingHasFinished():
-                finish = True
-            else:
+            #if self.streamingHasFinished():
+            finish = self.streamingHasFinished()
+            self.log("Streaming has finished {}".format(str(finish)))
+            if not finish:
                 time.sleep(self.fileTimeout.get())
             #First we update and close the streaming of the datasets
 
@@ -312,5 +313,5 @@ class WARPholeImportParticles(EMProtocol):
         f.close()
 
     def streamingHasFinished(self):
-        self.info("Streaming has finished: ".format(os.path.exists(self._getStopStreamingFilename())))
+        self.info("Streaming has finished: {}".format(os.path.exists(self._getStopStreamingFilename())))
         return os.path.exists(self._getStopStreamingFilename())
