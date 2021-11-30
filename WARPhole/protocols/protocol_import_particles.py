@@ -192,7 +192,6 @@ class WARPholeImportParticles(EMProtocol):
                 #pass
             #if self.streamingHasFinished():
             finish = self.streamingHasFinished()
-            self.info("Checking if streaming has finished {}".format(str(finish)))
             if not finish:
                 time.sleep(self.fileTimeout.get())
             #First we update and close the streaming of the datasets
