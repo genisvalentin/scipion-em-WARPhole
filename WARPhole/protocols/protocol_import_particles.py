@@ -185,12 +185,12 @@ class WARPholeImportParticles(EMProtocol):
             self.summaryVar.set(summary)
 
             #If the import file has not been modified after some time time, stop importing. Else sleep and do another interation
-            if time.time() - self.mtime(self.importFilePath) > timeDifference + self.fileTimeout.get():
+            #if time.time() - self.mtime(self.importFilePath) > timeDifference + self.fileTimeout.get():
                 #Break the loop
                 #self.warning("Star file was not updated in", time.time() - self.mtime(self.importFilePath))
                 #finish = True
-                pass
-            elif self.streamingHasFinished():
+                #pass
+            if self.streamingHasFinished():
                 finish = True
             else:
                 time.sleep(self.fileTimeout.get())
@@ -307,8 +307,10 @@ class WARPholeImportParticles(EMProtocol):
         the streaming.
         """
         # Just place an special file into the run folder
+        self.info("Create the file: {}".format(self.__getStopStreamingFilename()))
         f = open(self._getStopStreamingFilename(), 'w')
         f.close()
 
     def streamingHasFinished(self):
+        self.info("Streaming has finished: ".format(os.path.exists(self._getStopStreamingFilename())))
         return os.path.exists(self._getStopStreamingFilename())
