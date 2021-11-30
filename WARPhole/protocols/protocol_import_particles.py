@@ -308,7 +308,7 @@ class WARPholeImportParticles(EMProtocol):
         the streaming.
         """
         # Just place an special file into the run folder
-        self.info("Create the file: {}".format(self._getStopStreamingFilename()))
+        self.info("Finalizing the protocol. Waiting for the last iteration to finish")
         f = open(self._getStopStreamingFilename(), 'w')
         f.close()
 
