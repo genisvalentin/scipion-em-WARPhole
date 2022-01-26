@@ -240,6 +240,7 @@ class WARPimporter:
             imgRow['rlnMicrographName'] = movieName
             img.setCTF(rowToCtfModel(imgRow))
             self.preprocess_success = True
+            self.protocol.info("Imported {}".format(movieName))
 
     #This function imports the particle coordinates
     def _postprocessImageRow30(self, img, imgRow):
@@ -345,7 +346,6 @@ class WARPimporter:
                     self._imgDict[imgName] = img
                     newFiles.add(imgName)
                     self.partSet.append(img)
-                    self.protocol.info("Imported {}".format(imgName))
 
             if not img is None:
                 self.partSet.setHasCTF(img.hasCTF())
