@@ -345,6 +345,7 @@ class WARPimporter:
                     self._imgDict[imgName] = img
                     newFiles.add(imgName)
                     self.partSet.append(img)
+                    self.protocol.info("Imported {}".format(imgName))
 
             if not img is None:
                 self.partSet.setHasCTF(img.hasCTF())
