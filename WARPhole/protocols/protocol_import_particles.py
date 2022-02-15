@@ -45,6 +45,9 @@ from pwem.protocols import EMProtocol
 import pwem.emlib.metadata as md
 import pyworkflow.protocol.constants as cons
 import pickle
+import types
+import pandas as pd
+import starfile
 
 class WARPholeImportParticles(EMProtocol):
     """
@@ -52,9 +55,11 @@ class WARPholeImportParticles(EMProtocol):
     """
     _label = 'Import WARP particles'
     _outputClassName = 'SetOfParticles'
-    _importedMicrographsSet = set()
+    _importedMicrographsSet = list()
     _closed = False
     _readyToClose = False
+    _stepsCheckSecsCounter = 4
+    _lastImportedId = 0
 
     # -------------------------- DEFINE param functions ----------------------
 
@@ -120,8 +125,16 @@ class WARPholeImportParticles(EMProtocol):
             self.warning("Import aligned movies was set to True. Once all particles are imported, the protocol will wait for WARP to export the movie aligment star files.")
 
     def _stepsCheck(self):
+        if self._stepsCheckSecsCounter < 4:
+            self._stepsCheckSecsCounter += 1
+            return()
+        self._stepsCheckSecsCounter = 0
         if not hasattr(self,'importer'):
             self._steps[0].setStatus(cons.STATUS_NEW)
+            if os.path.exists(self._getExtraPath("importedMicrographs.set")):
+                with open(self._getExtraPath("importedMicrographs.set"),'rb') as importedMicrographsPickleFile:
+                    self._importedMicrographsSet = pickle.load(importedMicrographsPickleFile)
+
         newSteps = []
         newParticleSetList = self.readNewMicrographs(self.starFile.get())
         for particleSet in newParticleSetList:
@@ -131,7 +144,7 @@ class WARPholeImportParticles(EMProtocol):
         if len(newSteps)>0:
             self._steps[self.closeSetsId-1].addPrerequisites(*newSteps)
         close = self.streamingHasFinished()
-        if close and not self._closed and self._readyToClose:
+        if close and not self._closed and self._readyToClose and not self._steps[self.closeSetsId-1].isFinished():
             self._steps[self.closeSetsId-1].setStatus(cons.STATUS_NEW)
         if self._steps[self.importAlignedMoviesStepId-1].isRunning():
             finish = self.protocolHasFinished()
@@ -155,21 +168,26 @@ class WARPholeImportParticles(EMProtocol):
             return(newParticleSetList)
 
         currentMicrograph = ""
-        for i in md.iterRows(imgMd):
-            imgRow = i.clone()
+
+        self.info("There are {} particles in the dataframe".format(imgMd.size()))
+        for i in range(self._lastImportedId+1,imgMd.size()+1):
+            row = md.Row()
+            row.readFromMd(imgMd,i)
+            imgRow = row.clone()
             micrographName = imgRow['rlnMicrographName']
             if micrographName not in self._importedMicrographsSet and micrographName != currentMicrograph:
-                newParticleSetList.append(set())
+                newParticleSetList.append(list())
                 if currentMicrograph != "":
-                    self._importedMicrographsSet.add(currentMicrograph)
+                    self._importedMicrographsSet.append(currentMicrograph)
+                    self._lastImportedId = i
                 currentMicrograph = micrographName
 
             if len(newParticleSetList) > 0 and micrographName == currentMicrograph:
-                newParticleSetList[-1].add(imgRow)
+                newParticleSetList[-1].append(imgRow)
 
         if self.streamingHasFinished():
             self.info("Finishing. Added {} micrographs to the import list".format(len(newParticleSetList)))
-            self._importedMicrographsSet.add(currentMicrograph)
+            self._importedMicrographsSet.append(currentMicrograph)
             self._readyToClose = True
             return(newParticleSetList)
         else:
@@ -180,6 +198,8 @@ class WARPholeImportParticles(EMProtocol):
         '''
         This function creates the data sets that will be populated during import
         '''
+        self.info("_stepsCheckSecs: {}".format(self._stepsCheckSecs))
+        #self._stepsCheckSecs = max(0.1,int(self.fileTimeout.get()))
         if os.path.exists(self._getStopStreamingFilename()):
             os.remove(self._getStopStreamingFilename())
 
@@ -283,11 +303,15 @@ class WARPholeImportParticles(EMProtocol):
         self.outputCtf2 = SetOfCTF(filename=self._getPath("ctf2.sqlite"))
         self._defineOutputs(outputAlignedMovies1 = self.outputAlignedMovies1)
 
+        particleSet = list()
+
         imgMd = md.MetaData(self.importFilePath)
-        particleSet = set()
-        for i in md.iterRows(imgMd):
-            imgRow = i.clone()
-            particleSet.add(imgRow)
+
+        for i in range(1,imgMd.size()+1):
+            row = md.Row()
+            row.readFromMd(imgMd,i)
+            imgRow = row.clone()
+            particleSet.append(imgRow)
 
         #Create the importer object with the data sets that will be populated
         importer = WARPimporter(self, self.importFilePath, self.outputParticles2,self.outputMicrographs2,self.outputCoordinates2,self.outputAlignedMovies1,self.outputCtf2,importAlignments=True)
@@ -301,12 +325,14 @@ class WARPholeImportParticles(EMProtocol):
         finish = False
         while not os.path.isdir(metadataPath) and not finish:
             time.sleep(self.fileTimeout.get())
+            finish = self.protocolHasFinished()
             if time.time()-startTime > self.movieTimeout.get() == 0:
                 self.warning("Movie alignments not found after {}. Stop waiting. Finishing protocol".format(str(self.movieTimeout.get())))
                 finish = True
 
         #We start impoting. It can take a while until WARP exports all movie alignments, so we do the import in a loop.
         while not finish:
+            finish = self.protocolHasFinished()
             #import new particles
             importer.importParticles(particleSet)
             #Update the data sets
@@ -318,8 +344,12 @@ class WARPholeImportParticles(EMProtocol):
                 self._updateOutputSet("outputCoordinates2",self.outputCoordinates2,self.outputCoordinates2.STREAM_OPEN)
 
             #If all aligned movies are available, break the loop. Else wait.
-            if self.outputAlignedMovies1.getSize() == self.outputMicrographs1.getSize() or self.movieTimeout.get() == 0:
-                finish = True
+            if self.outputAlignedMovies1 is not None:
+                if self.outputAlignedMovies1.getSize() == self.outputMicrographs1.getSize() or self.movieTimeout.get() == 0:
+                    finish = True
+                else:
+                    self.warning("Not all particles have available aligned movies, waiting...")
+                    time.sleep(self.fileTimeout.get())
             else:
                 self.warning("Not all particles have available aligned movies, waiting...")
                 time.sleep(self.fileTimeout.get())
