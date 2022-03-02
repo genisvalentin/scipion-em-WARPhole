@@ -153,7 +153,7 @@ class WARPholeImportParticles(EMProtocol):
         close = self.streamingHasFinished()
         if close and not self._closed and self._readyToClose and not self._steps[self.closeSetsId-1].isFinished():
             self._steps[self.closeSetsId-1].setStatus(cons.STATUS_NEW)
-        if self.hasattr('importAlignedMoviesStepId'):
+        if hasattr(self,'importAlignedMoviesStepId'):
             if self._steps[self.importAlignedMoviesStepId-1].isRunning():
                 finish = self.protocolHasFinished()
                 if finish:
