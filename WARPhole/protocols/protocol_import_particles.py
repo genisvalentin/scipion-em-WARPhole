@@ -85,11 +85,6 @@ class WARPholeImportParticles(EMProtocol):
                       default=0,
                       help="The star file is read every these many seconds, and new particles are imported. If no new particles are found, the import is considered to be finished. Set to zero for no streaming.")
 
-        form.addParam('batchSize', params.IntParam,
-                      label='Load micrographs in batches of up to:',
-                      default=10,
-                      help="Micrographs will be imported in batches up to this size. Useful to speed up the import if many micrographs are available when the protocol is launched. If no streaming is needed, set this to a number larger than the micrographs available to import all at once.")
-
         form.addParam('copyBinaries', params.BooleanParam,
                       default=False,
                       label='Copy binary files?',
@@ -150,9 +145,8 @@ class WARPholeImportParticles(EMProtocol):
 
         newSteps = []
         newParticleSetList = self.readNewMicrographs(self.starFile.get())
-        chunkedParticleSetList = [newParticleSetList[i:i + self.batchSize.get()] for i in range(0, len(newParticleSetList), self.batchSize.get())]
-        for chunk in chunkedParticleSetList:
-            particleSetBatch = list(itertools.chain.from_iterable(chunk))
+        particleSetBatch = list(itertools.chain.from_iterable(newParticleSetList))
+        if len(particleSetBatch):
             newSteps.append(self._insertFunctionStep('importMicrographStep',particleSetBatch,prerequisites=[]))
         if len(newSteps)>0:
             self._steps[self.closeSetsId-1].addPrerequisites(*newSteps)
