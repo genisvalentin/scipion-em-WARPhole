@@ -130,11 +130,6 @@ class WARPholeImportParticles(EMProtocol):
             self.warning("Import aligned movies was set to True. Once all particles are imported, the protocol will wait for WARP to export the movie aligment star files.")
 
     def _stepsCheck(self):
-        #We check for new steps every 5 iterations to speed up the process
-        if self._stepsCheckSecsCounter < 4:
-            self._stepsCheckSecsCounter += 1
-            return()
-        self._stepsCheckSecsCounter = 0
         #We check if the WARP importer project exists. If not, we create one.
         #If this is a continuation job, read the list of already imported micrographs.
         if not hasattr(self,'importer'):
