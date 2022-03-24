@@ -101,16 +101,23 @@ class CopyToScratch(XmippProtTriggerData):
     # --------------------------- INSERT steps functions ----------------------
     def _insertAllSteps(self):
         # initializing variables
+        imsSteps = self._insertFunctionStep('delayStep')
         self.finished = False
         self.images = []
         self.splitedImages = []
         self.outputCount = 0
         self.setImagesClass()
         self.setImagesType()
+        while not self._inputType:
+            self.info("Input type could not be set. Re-rying in 10 seconds.")
+            time.sleep(10)
+            inputImages = self.inputImages.get()
+            inputImages.loadAllProperties()
+            self.setImagesType()
+            self.setImagesClass()
         self.info("Input type was set to {}".format(self._inputType))
 
         # steps
-        imsSteps = self._insertFunctionStep('delayStep')
         self._insertFunctionStep('createOutputStep',
                                  prerequisites=[imsSteps], wait=True)
 
