@@ -63,6 +63,8 @@ class WARPimporter:
         self._importAlignments = importAlignments
         self._importedCoords = set()
         self.acqRow = None
+        self.range = None
+        self.dim = None
         self._initSets()
 
     def _initSets(self):
@@ -110,7 +112,6 @@ class WARPimporter:
             self.ctfSet.enableAppend()
             if self.ctfSet.getSize() > 0:
                 self.ctfSet.loadAllProperties()
-
 
     def importParticles(self,particleSet):
         '''Main method of this class. Needs to be called to import particles'''
@@ -161,7 +162,14 @@ class WARPimporter:
         self._stackTrans = None
         self._micTrans = None
         print("acqRow",acqRow)
-        return row, None, acqRow
+        m = Movie()
+        m.setFileName(table[0].get('rlnMicrographName'))
+        self.dim = m.getDim()
+        self.info("Dim: (%s)" % ", ".join(map(str, dim)))
+        self.range = [1, dim[2], 1]
+        m.setFramesRange(self.range)
+        self.movieSet.setDim(self.dim)
+        self.movieSet.setFramesRange(self.range)
 
     #This function imports the movies and the micrographs
     def _preprocessImageRow30(self, img, imgRow):
@@ -190,6 +198,9 @@ class WARPimporter:
                 movie.setObjId(movieId)
                 movie.setFileName(movieName)
                 movie.setMicName(movieName)
+                if self.range:
+                    movie.setFramesRange(self.range)
+                                
                 if self._importAlignments:
                     alignment = self.getMicrographAlignment(movie)
                     if alignment:
