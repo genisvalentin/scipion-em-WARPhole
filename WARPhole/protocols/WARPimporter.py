@@ -162,16 +162,20 @@ class WARPimporter:
         self._stackTrans = None
         self._micTrans = None
         print("acqRow",acqRow)
-        m = Movie()
-        m.setFileName(table[0].get('rlnMicrographName'))
+
+        index, imgPath = relionToLocation(table[0].get('rlnMicrographName'))
+        print("Reading movie dimensions from {}".format(os.path.join(self._imgPath, imgPath)))
+        m = Movie(os.path.join(self._imgPath, imgPath))
         self.dim = m.getDim()
-        self.info("Dim: (%s)" % ", ".join(map(str, dim)))
-        self.range = [1, dim[2], 1]
+        print("Dim: (%s)" % ", ".join(map(str, self.dim)))
+        self.range = [1, self.dim[2], 1]
         m.setFramesRange(self.range)
         self.movieSet.setDim(self.dim)
         self.movieSet.setFramesRange(self.range)
+        
+        return row, None, acqRow
 
-    #This function imports the movies and the micrographs
+        #This function imports the movies and the micrographs
     def _preprocessImageRow30(self, img, imgRow):
         self.preprocess_success = False
 
@@ -200,7 +204,7 @@ class WARPimporter:
                 movie.setMicName(movieName)
                 if self.range:
                     movie.setFramesRange(self.range)
-                                
+
                 if self._importAlignments:
                     alignment = self.getMicrographAlignment(movie)
                     if alignment:
