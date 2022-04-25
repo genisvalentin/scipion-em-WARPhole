@@ -24,15 +24,7 @@
 # *  e-mail address 'genis.valentin.gese@ki.se'
 # *
 # **************************************************************************
-'''
-Something to fix!
-FATAL ERROR: Object 5750.outputParticles1 has no sampling rate!!!
-FATAL ERROR: Object 5750.outputMicrographs1 has no sampling rate!!!
-FATAL ERROR: Object 5750.outputMovies1 has no sampling rate!!!
 
-Something to fix!
-Check for new files after the correct fileTimeout
-'''
 
 """
 This protocol imports data pre-processed in WARP.
@@ -100,6 +92,11 @@ class WARPholeImportParticles(EMProtocol):
                       label='Magnification',
                       default=0,
                       help="Set to zero if unknown")
+
+        form.addParam('micrographPixelSize', params.FloatParam,
+                      label='Micrograph pixel size',
+                      help="Pixel size of the micrographs. This is needed in case extracted particles are binned in WARP. Set to -1 to use the same pixel size as the particles.",
+                      default=-1)
 
         form.addParam('moviePixelSize', params.FloatParam,
                       label='Movie pixel size (unbinned)',
@@ -178,6 +175,7 @@ class WARPholeImportParticles(EMProtocol):
         self.outputMovies1 = SetOfMovies(filename=self._getPath("movies1.sqlite"))
         self.outputCoordinates1.setMicrographs(self.outputMicrographs1)
         self.outputCtf1 = SetOfCTF(filename=self._getPath("ctf1.sqlite"))
+        #Set sampling sampling
         #Define outputs
         self._defineOutputs(outputParticles1 = self.outputParticles1)
         self._defineOutputs(outputMicrographs1 = self.outputMicrographs1)

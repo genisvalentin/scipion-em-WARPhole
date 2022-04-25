@@ -41,6 +41,56 @@ from relion.convert.convert_deprecated import setupCTF
 from relion.convert.convert_utils import relionToLocation, locationToRelion
 from relion.convert.convert_deprecated import rowToParticle, rowToCoordinate, rowToCtfModel
 
+
+'''
+Need to fix the following errors
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMicrographs1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMovies1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMicrographs1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMovies1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMicrographs1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMovies1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMicrographs1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMovies1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMicrographs1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMovies1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMicrographs1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputMovies1 has no sampling rate!!!
+FATAL ERROR: Object 1641.outputParticles1 has no sampling rate!!!
+'''
+
+'''
+Something to fix!
+FATAL ERROR: Object 5750.outputParticles1 has no sampling rate!!!
+FATAL ERROR: Object 5750.outputMicrographs1 has no sampling rate!!!
+FATAL ERROR: Object 5750.outputMovies1 has no sampling rate!!!
+
+Something to fix!
+Check for new files after the correct fileTimeout
+
+Prioritary, save micrograph name without full path. necessary for relion bayesian polishing
+to run properly. The full path is not needed as EPU micrographs have unique names (name and time of the micrograph)
+'''
+
+'''
+Micrographs and particles have the same pixel size.
+But it might be different!
+'''
+
 class WARPimporter:
     """ Helper class to import WARP-generated particles in streaming mode """
     def __init__(self, protocol, starFile, partSet, micSet=None, coordSet=None, movieSet=None, ctfSet=None, importAlignments=False):
@@ -81,16 +131,16 @@ class WARPimporter:
                 self.micSet.loadAllProperties()
             else:
                 self.loadAcquisitionInfo(self.micSet)
-                self.micSet.setSamplingRate(self.acquisitionDict['samplingRate'])
+                self.micSet.setSamplingRate(self.acquisitionDict['micrographSamplingRate'])
 
         if self.partSet is not None:
             self.partSet.setObjComment('Particles imported from Relion star file:\n%s' % self._starFile)
             self.partSet.enableAppend()
             if self.partSet.getSize() > 0:
-                self.micSet.loadAllProperties()
+                self.partSet.loadAllProperties()
             else:
                 self.loadAcquisitionInfo(self.partSet)
-                self.partSet.setSamplingRate(self.acquisitionDict['samplingRate'])
+                self.partSet.setSamplingRate(self.acquisitionDict['particleSamplingRate'])
 
         if self.movieSet is not None:
             self.movieSet.setObjComment('Movies imported from Relion star file:\n%s' % self._starFile)
@@ -98,7 +148,7 @@ class WARPimporter:
             if self.movieSet.getSize() > 0:
                 self.movieSet.loadAllProperties()
             else:
-                self.movieSet.setSamplingRate(self.protocol.moviePixelSize.get())
+                self.movieSet.setSamplingRate(self.acquisitionDict['movieSamplingRate'])
                 self.loadAcquisitionInfo(self.movieSet)
 
         if self.coordSet is not None:
@@ -122,7 +172,8 @@ class WARPimporter:
             postprocessImageRow=self._postprocessImageRow30,
             readAcquisition=False)
         if self.coordSet is not None and self.partSet is not None:
-            self.coordSet.setBoxSize(self.partSet.getDimensions()[0])
+            #Set the particle box size. Adjust the size in pixels in case particles are binned. Rounding because binnig is always an integer.
+            self.coordSet.setBoxSize(self.partSet.getDimensions()[0]*round(self.acquisitionDict['particleSamplingRate']/self.acquisitionDict['micrographSamplingRate']))
         self._importedParticles = newFiles
         self.protocol.info("Added {} new particles".format(str(len(newFiles))))
 
@@ -158,9 +209,7 @@ class WARPimporter:
         # particles to keep track of the particle's micrograph
         self._micIdOrName = (row.get('rlnMicrographName', False) or
                              row.get('rlnMicrographId', False))
-        # init dictionary. It will be used in the preprocessing
-        self._stackTrans = None
-        self._micTrans = None
+
         print("acqRow",acqRow)
 
         index, imgPath = relionToLocation(table[0].get('rlnMicrographName'))
@@ -169,10 +218,9 @@ class WARPimporter:
         self.dim = m.getDim()
         print("Dim: (%s)" % ", ".join(map(str, self.dim)))
         self.range = [1, self.dim[2], 1]
-        m.setFramesRange(self.range)
         self.movieSet.setDim(self.dim)
         self.movieSet.setFramesRange(self.range)
-        
+
         return row, None, acqRow
 
         #This function imports the movies and the micrographs
@@ -181,7 +229,7 @@ class WARPimporter:
 
         #Create a link or copy the particle binary files (*.mrcs). If the file already exists, does nothing
         self.copyOrLinkBinary(imgRow, 'rlnImageName', self._imgPath, self.protocol._getExtraPath(), copyFiles=self.protocol.copyBinaries.get())
-        setupCTF(imgRow, self.acquisitionDict['samplingRate'])
+        setupCTF(imgRow, self.acquisitionDict['micrographSamplingRate'])
 
         movieId = imgRow.get('rlnMicrographId', None)
         movieName = imgRow.get('rlnMicrographName', None)
@@ -269,6 +317,8 @@ class WARPimporter:
             partName = imgRow.get('rlnImageName',None)
             if img.hasCoordinate():
                 coord = img.getCoordinate()
+                #Adjust the coordinate in pixels in case particles are binned. Rounding because binnig is always an integer.
+                coord.scale(round(self.acquisitionDict['particleSamplingRate']/self.acquisitionDict['micrographSamplingRate']))
                 coord.setMicId(micId)
                 coord.setMicName(micName)
                 if partName not in self._importedCoords and self.preprocess_success:
@@ -300,11 +350,18 @@ class WARPimporter:
                 acquisition.setSphericalAberration(acquisitionDict['sphericalAberration'])
 
             if acqRow.get('rlnDetectorPixelSize', False):
-                acquisitionDict['samplingRate'] = acqRow.rlnDetectorPixelSize
+                acquisitionDict['particleSamplingRate'] = acqRow.rlnDetectorPixelSize
+
+
+            acquisitionDict['movieSamplingRate'] = self.protocol.moviePixelSize.get()
+            acquisitionDict['micrographSamplingRate'] = self.protocol.micrographPixelSize.get()
+            if acquisitionDict['micrographSamplingRate'] == -1:
+                acquisitionDict['micrographSamplingRate'] = acquisitionDict['particleSamplingRate']
 
             acquisition.setDosePerFrame(self.protocol.dosePerFrame.get())
             acquisition.setMagnification(self.protocol.magnification.get())
             micSet.setAcquisition(acquisition)
+
         except Exception as ex:
             print("Error loading acquisition: ", str(ex))
 
@@ -343,28 +400,28 @@ class WARPimporter:
 
     #Reads the goodparticles star file generated by WARP and imports the new particles
     def readSetOfNewParticles(self, particleSet, **kwargs):
-            """read from WARP goodparticles star file
-                filename: The goodparticles star file
-                rowToParticle: this function will be used to convert the row to Object
-            """
-            img = None
-            newFiles = set()
-            oldFiles = set(self._imgDict.keys())
-            for imgRow in particleSet:
-                imgName = imgRow['rlnImageName']
-                #img = self._imgDict.get(imgName, None)
-                if imgName not in oldFiles:
-                    img = rowToParticle(imgRow, **kwargs)
-                    if not self.preprocess_success:
-                        continue
-                    self._imgDict[imgName] = img
-                    newFiles.add(imgName)
-                    self.partSet.append(img)
+        """read from WARP goodparticles star file
+            filename: The goodparticles star file
+            rowToParticle: this function will be used to convert the row to Object
+        """
+        img = None
+        newFiles = set()
+        oldFiles = set(self._imgDict.keys())
+        for imgRow in particleSet:
+            imgName = imgRow['rlnImageName']
+            #img = self._imgDict.get(imgName, None)
+            if imgName not in oldFiles:
+                img = rowToParticle(imgRow, **kwargs)
+                if not self.preprocess_success:
+                    continue
+                self._imgDict[imgName] = img
+                newFiles.add(imgName)
+                self.partSet.append(img)
 
-            if not img is None:
-                self.partSet.setHasCTF(img.hasCTF())
+        if not img is None:
+            self.partSet.setHasCTF(img.hasCTF())
 
-            return(newFiles)
+        return(newFiles)
 
     #Create a symlink or copy the binary files (particles, micrographs, movies) into the Scipion project dir
     def copyOrLinkBinary(self, imgRow, label, basePath, destBasePath ,copyFiles=False):
