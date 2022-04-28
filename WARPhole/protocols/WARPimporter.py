@@ -172,8 +172,7 @@ class WARPimporter:
             postprocessImageRow=self._postprocessImageRow30,
             readAcquisition=False)
         if self.coordSet is not None and self.partSet is not None:
-            #Set the particle box size. Adjust the size in pixels in case particles are binned. Rounding because binnig is always an integer.
-            self.coordSet.setBoxSize(self.partSet.getDimensions()[0]*round(self.acquisitionDict['particleSamplingRate']/self.acquisitionDict['micrographSamplingRate']))
+            self.coordSet.setBoxSize(self.partSet.getDimensions()[0])
         self._importedParticles = newFiles
         self.protocol.info("Added {} new particles".format(str(len(newFiles))))
 
