@@ -33,7 +33,7 @@ import copy
 
 from pyworkflow.object import Float
 from pwem.constants import ALIGN_PROJ, ALIGN_2D, ALIGN_NONE
-from pwem.objects import Micrograph, MovieAlignment, Movie, Particle
+from pwem.objects import Micrograph, MovieAlignment, Movie, Particle, Coordinate
 import pwem.emlib.metadata as md
 import pyworkflow.utils as pwutils
 from relion.convert.convert_deprecated import setupCTF
@@ -172,7 +172,8 @@ class WARPimporter:
             postprocessImageRow=self._postprocessImageRow30,
             readAcquisition=False)
         if self.coordSet is not None and self.partSet is not None:
-            self.coordSet.setBoxSize(self.partSet.getDimensions()[0])
+            #self.coordSet.setBoxSize(self.partSet.getDimensions()[0])
+            self.coordSet.setBoxSize(self.partSet.getDimensions()[0]*round(self.acquisitionDict['particleSamplingRate']/self.acquisitionDict['micrographSamplingRate']))
         self._importedParticles = newFiles
         self.protocol.info("Added {} new particles".format(str(len(newFiles))))
 
@@ -317,13 +318,17 @@ class WARPimporter:
             if img.hasCoordinate():
                 coord = img.getCoordinate()
                 #Adjust the coordinate in pixels in case particles are binned. Rounding because binnig is always an integer.
-                coord.scale(round(self.acquisitionDict['particleSamplingRate']/self.acquisitionDict['micrographSamplingRate']))
                 coord.setMicId(micId)
                 coord.setMicName(micName)
                 if partName not in self._importedCoords and self.preprocess_success:
-                    self._coordDict[partName] = coord
                     self._importedCoords.add(partName)
-                    self.coordSet.append(coord)
+                    scaled_coord = Coordinate()
+                    scaled_coord.copyInfo(coord)
+                    scaled_coord.setMicId(micId)
+                    scaled_coord.setMicName(micName)
+                    scaled_coord.scale(round(self.acquisitionDict['particleSamplingRate']/self.acquisitionDict['micrographSamplingRate']))
+                    self._coordDict[partName] = scaled_coord
+                    self.coordSet.append(scaled_coord)
 
     #Return a dictionary with acquisition values and the sampling rate information.
     #This informatoin is taken from the first particle of th star file.
