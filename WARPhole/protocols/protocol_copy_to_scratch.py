@@ -36,6 +36,8 @@ from pwem.protocols import EMProtocol
 from pyworkflow.object import Set
 from pyworkflow.protocol.params import BooleanParam, IntParam, PointerParam, GT, FolderParam
 from xmipp3.protocols.protocol_trigger_data import XmippProtTriggerData
+from pyworkflow.project import Manager
+from pyworkflow.project import Project
 
 class CopyToScratch(XmippProtTriggerData):
     """
@@ -172,12 +174,14 @@ class CopyToScratch(XmippProtTriggerData):
             time.sleep(60)
             freeScratchSpace = self._getFreeScratchSpace(scratchPath)
             self.info("Not enough scratch space available. Sleeping for 60 seconds")
+
+        projectName = self.getProject().getName()
         for img in imgSet:
             filename = img.getFileName()
             if not filename.startswith(scratchPath):
-                newFilename = os.path.join(scratchPath,filename)
+                newFilename = os.path.join(scratchPath,projectName,filename)
             else:
-                newFilename = filename
+                newFilename = os.path.join(projectName,filename)
             pwutils.path.makeFilePath(newFilename)
             symlink = self._getExtraPath(filename)
             pwutils.path.makeFilePath(symlink)
