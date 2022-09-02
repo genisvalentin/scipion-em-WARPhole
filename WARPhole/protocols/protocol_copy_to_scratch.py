@@ -167,6 +167,7 @@ class CopyToScratch(XmippProtTriggerData):
 
     def _moveImages(self,imgSet):
         scratchPath = str(self.scratchPath)
+        self.info("Scratch path is {}".format(scratchPath))
         imgSetSize = self._getImgSetSize(imgSet)
         freeScratchSpace = self._getFreeScratchSpace(scratchPath)
         self.info("imgSetSize: {}, freeScratchSpace: {}".format(str(imgSetSize),str(freeScratchSpace)))
@@ -175,7 +176,7 @@ class CopyToScratch(XmippProtTriggerData):
             freeScratchSpace = self._getFreeScratchSpace(scratchPath)
             self.info("Not enough scratch space available. Sleeping for 60 seconds")
 
-        projectName = self.getProject().getName()
+        projectName = self.getProject().getName().split("/")[-1]
         for img in imgSet:
             filename = img.getFileName()
             if not filename.startswith(scratchPath):

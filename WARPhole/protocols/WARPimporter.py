@@ -40,6 +40,7 @@ from relion.convert.convert_deprecated import setupCTF
 
 from relion.convert.convert_utils import relionToLocation, locationToRelion
 from relion.convert.convert_deprecated import rowToParticle, rowToCoordinate, rowToCtfModel
+from relion.convert.convert31 import OpticsGroups
 
 
 '''
@@ -81,14 +82,8 @@ FATAL ERROR: Object 5750.outputMovies1 has no sampling rate!!!
 
 Something to fix!
 Check for new files after the correct fileTimeout
-
-Prioritary, save micrograph name without full path. necessary for relion bayesian polishing
-to run properly. The full path is not needed as EPU micrographs have unique names (name and time of the micrograph)
-'''
-
-'''
-Micrographs and particles have the same pixel size.
-But it might be different!
+I think I do not need the 0 = no streaming option anymore. I have now a different
+mechanism to stop streaming.
 '''
 
 class WARPimporter:
@@ -180,7 +175,11 @@ class WARPimporter:
     def _findImagesPath(self, label, warnings=True):
         '''This function validates the input path for the binaries and gets the acquisition settings from the first row'''
         # read the first table
-        table = Table(fileName=self._starFile)
+        try:
+            table = Table(fileName=self._starFile, tableName='particles')
+        except:
+            table = Table(fileName=self._starFile)
+
         acqRow = row = table[0]
         if row is None:
             raise Exception("Cannot import from empty metadata: %s"
@@ -190,10 +189,13 @@ class WARPimporter:
             self.version30 = True
             self.protocol.warning("Import from Relion version < 3.1 ...")
         else:
-            acqRow = OpticsGroups.fromStar(self._starFile)
+            # acqRow = OpticsGroups.fromStar(self._starFile)
             # read particles table
             table = Table(fileName=self._starFile, tableName='particles')
             row = table[0]
+
+        self.protocol.info("Reading row")
+        self.protocol.info(row)
 
         if not row.get(label, False):
             raise Exception("Label *%s* is missing in metadata: %s"
@@ -244,12 +246,12 @@ class WARPimporter:
 
             # First time I found this micrograph (either by id or name)
             if movieKey not in self._importedMovies:
-                self.copyOrLinkBinary(imgRow, 'rlnMicrographName', self._imgPath, self.protocol._getExtraPath(), copyFiles=self.protocol.copyBinaries.get())
+                newName = self.copyOrLinkBinary(imgRow, 'rlnMicrographName', self._imgPath, self.protocol._getExtraPath(), copyFiles=self.protocol.copyBinaries.get())
                 movieName = imgRow.get('rlnMicrographName', None)
                 movie = Movie()
                 movie.setObjId(movieId)
-                movie.setFileName(movieName)
-                movie.setMicName(movieName)
+                movie.setFileName(newName)
+                movie.setMicName(newName)
                 if self.range:
                     movie.setFramesRange(self.range)
 
@@ -290,7 +292,7 @@ class WARPimporter:
                 mic.setObjId(micId)
                 if micName is None:
                     micName = self.protocol._getExtraPath('fake_micrograph%6d' % micId)
-                mic.setFileName(micName)
+                mic.setFileName(self.protocol._getExtraPath(micName))
                 mic.setMicName(movieName)
                 ctf = rowToCtfModel(imgRow)
                 ctf.setMicrograph(mic)
@@ -438,5 +440,6 @@ class WARPimporter:
                 pwutils.copyFile(os.path.join(basePath, imgPath), newName)
             else:
                 pwutils.createLink(os.path.join(basePath, imgPath), newName)
-
-        imgRow.set(label, locationToRelion(index, newName))
+        if not label=="rlnMicrographName":
+            imgRow.set(label, locationToRelion(index, newName))
+        return(newName)

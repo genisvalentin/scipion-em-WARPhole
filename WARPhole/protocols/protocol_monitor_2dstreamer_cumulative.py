@@ -46,6 +46,8 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
     """
     _label = '2d streamer'
 
+    _childrenProtocols = []
+
     def __init__(self, **kwargs):
         ProtMonitor.__init__(self, **kwargs)
         self._runIds = pwobj.CsvList(pType=int)
@@ -68,11 +70,12 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                            'many 2D classification runs based on the 2D '
                            'protocol template selected. ')
 
-        form.addParam('batchSize', params.IntParam,
+        form.addParam('batchSize', params.IntParam, default=0,
                       label="Batch size",
                       help="How many particles (approximately) you want to "
-                           "group to make the new batch and launch a new 2d"
-                           "classification job. ")
+                           "group to make the new batch and launch a new 2d "
+                           "classification job. Set to zero to start new jobs "
+                           "immediately")
 
         form.addParam('startingNumber', params.IntParam, default=0,
                       label="Starting number",
@@ -149,6 +152,7 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
         project.scheduleProtocol(copyProt, self._runPrerequisites)
         # Next schedule will be after this one
         self._runPrerequisites.append(copyProt.getObjId())
+        _childrenProtocols.append(copyProt)
 
     def _checkNewInput(self):
         """ Check if there are new particles and generate a new set
@@ -164,10 +168,14 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
             #          % (micId, partId, subset.getSize()))
             self._lastPartId = partId
             # Check the following after finding particles of a new micrograph
+            noProtocolsRunning = True
+            for p in _childrenProtocols:
+                if p.isRunning():
+                    noProtocolsRunning = False
             if micId != self._lastMicId:
                 batchSize = int(self.batchSize)*self.cumulative.get()*self._counter + int(self.batchSize)*(not self.cumulative.get())
                 self._lastMicId = micId
-                if self._lastMicId is not None and subset.getSize() > batchSize:
+                if self._lastMicId is not None and subset.getSize() > batchSize and self.batchSize > 0:
                     print("Subset size:", subset.getSize())
                     print("Batch size:", batchSize)
                     self._writeSubset(subset)
@@ -176,6 +184,14 @@ class ProtMonitor2dStreamerCumulative(ProtMonitor):
                         print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
                         self._lastPartId = self.startingNumber.get()
                         break
+
+        if self.batchSize == 0 and noProtocolsRunning:
+            print("Subset size:", subset.getSize())
+            self._writeSubset(subset)
+            subset = self._createSubset()
+            if self.cumulative.get():
+                print("Cumulative is set to true, restarting from particle ",self.startingNumber.get())
+                self._lastPartId = self.startingNumber.get()
 
         # Write last group of particles if input stream is closed
         if self._streamClosed:
